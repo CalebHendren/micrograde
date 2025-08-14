@@ -1,48 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!--
+      Preliminary Microbiology Grade Calculator
+      - Single-file static page (HTML + CSS + JS).
+      - All computation is client-side; no data leaves the browser.
+      - Grading rules:
+          * Lecture: Exams 1–3 (100 each), Final (100), EC ≤10.
+            If Final > lowest of Exams 1–3, drop that lowest exam and count Final twice.
+          * Lab: 10 quizzes (5 pts each) with lowest one dropped → best 9 = 45 max,
+            Task 5, Midterm 50, Final 50, EC ≤5.
+          * Course thresholds: A 495, B 440, C 385, D 330.
+      - UI shows: which lecture exam was replaced, which lab quiz was dropped,
+        lecture/lab totals, course total, letter, and non-negative points needed to next thresholds.
+    -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Preliminary microbiology grade calculator</title>
+    <title>Course Grade Calculator (Dracula)</title>
+
     <style>
         :root{
-            /* Dracula palette */
-            --bg: #282a36;
-            --bg-soft: #2f3242; /* custom blend between bg and currentLine */
-            --line: #44475a; /* current line */
-            --text: #f8f8f2; /* foreground */
-            --muted: #bfbfd6; /* soft text */
-            --comment: #6272a4;
-            --cyan: #8be9fd;
-            --green: #50fa7b;
-            --orange: #ffb86c;
-            --pink: #ff79c6;
-            --purple: #bd93f9;
-            --red: #ff5555;
-            --yellow: #f1fa8c;
-            --focus-ring: #8be9fd88;
-            --card: #1f202b; /* deeper card bg for contrast */
+            /* Dracula palette tokens used across the UI */
+            --bg: #282a36;       /* page background */
+            --bg-soft: #2f3242;  /* softer panel background */
+            --line: #44475a;     /* borders and separators */
+            --text: #f8f8f2;     /* primary text */
+            --muted: #bfbfd6;    /* secondary text */
+            --comment: #6272a4;  /* hint text */
+            --cyan: #8be9fd;     /* accent cyan */
+            --green: #50fa7b;    /* success */
+            --orange: #ffb86c;   /* warn */
+            --pink: #ff79c6;     /* unused accent */
+            --purple: #bd93f9;   /* primary accent */
+            --red: #ff5555;      /* error */
+            --yellow: #f1fa8c;   /* unused accent */
+            --focus-ring: #8be9fd88; /* focus outline */
+            --card: #1f202b;     /* card background */
         }
+
+        /* Global layout and typography */
         *{box-sizing:border-box}
         html,body{height:100%}
         body{
             margin:0; background:var(--bg); color:var(--text);
             font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
         }
+
+        /* Page header with gradient and title */
         header{
             padding: 20px 16px; border-bottom:1px solid var(--line);
             background: linear-gradient(180deg, var(--bg-soft), var(--bg) 70%);
         }
+        /* Title styling: bold system font, Dracula purple */
         h1{margin:0 0 6px; font-size: clamp(20px,3.2vw,28px); font-weight:800; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif; color: var(--purple);}
         .sub{color:var(--comment); font-size:14px}
 
+        /* Content container and CSS grid for responsive cards */
         .wrap{max-width:1100px; margin: 0 auto; padding: 16px}
-
         .grid{
             display:grid; gap:16px;
             grid-template-columns: repeat(12, 1fr);
             align-items:start;
         }
+
+        /* Card styling; becomes two columns on >=900px */
         .card{
             grid-column: span 12;
             background: var(--card);
@@ -56,12 +77,15 @@
             .card.full{grid-column: span 12}
         }
 
+        /* Section headings and hints */
         .card h2{margin:0 0 10px; font-size:18px}
         .hint{color:var(--muted); font-size:13px; margin: 4px 0 10px}
 
+        /* Label-input rows for numeric fields */
         .row{display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; margin:6px 0}
         .row label{font-size:14px}
 
+        /* Numeric input appearance and focus */
         input[type="number"]{
             width:120px; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
             background: var(--bg-soft); color: var(--text);
@@ -69,26 +93,31 @@
         }
         input[type="number"]:focus{border-color:var(--purple); box-shadow:0 0 0 3px var(--focus-ring)}
 
+        /* Boxed callouts for explanations and groups */
         .box{
             background: var(--bg-soft);
             border:1px solid var(--line);
             border-radius:10px; padding:10px; margin-top:10px; font-size:14px
         }
 
+        /* Totals pills row */
         .totals{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px}
         .pill{
             border:1px solid var(--line); background:var(--bg-soft); color:var(--text);
             padding:6px 10px; border-radius:999px; font-size:13px
         }
 
+        /* Color helpers for current letter grade */
         .ok{color: var(--green)}
         .warn{color: var(--orange)}
         .bad{color: var(--red)}
         .good{color: var(--cyan)}
 
+        /* Footer text and link color */
         .footer{padding:14px; text-align:center; color:var(--comment); font-size:12px}
         a{color:var(--cyan)}
 
+        /* Buttons: primary and secondary */
         .btns{display:flex; gap:10px; margin-top:10px}
         button{
             background:var(--purple); color:var(--bg);
@@ -96,8 +125,14 @@
         }
         button.secondary{background:transparent; color:var(--text); border:1px solid var(--line)}
         button:focus{outline:none; box-shadow:0 0 0 3px var(--focus-ring)}
+
+        /* Monospace for technical messages */
         .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-        /* Quiz grid sizing to prevent overlap/overhang */
+
+        /* Quiz grid sizing to prevent overlap/overhang.
+           - auto-fit creates as many columns as will fit
+           - minmax ensures each input has a reasonable minimum width
+           - width:100% allows inputs to fill their grid cell */
         .quiz-grid{ gap:8px; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
         .quiz-grid input[type="number"]{ width:100%; min-width:0; padding:6px 8px; }
     </style>
@@ -105,40 +140,52 @@
 <body>
 <header>
     <div class="wrap">
+        <!-- Page title and disclaimer brief -->
         <h1>Preliminary Microbiology Grade Calculator</h1>
         <div class="sub">Your official letter grade will be calculated by your lecture instructor.</div>
+        <!-- Optional: repo link in header (kept minimal to avoid layout changes) -->
+        <!-- <div class="sub"><a href="https://github.com/CalebHendren/micrograde/" target="_blank" rel="noopener">View source on GitHub</a></div> -->
     </div>
 </header>
 
 <main class="wrap">
     <section class="grid">
+        <!-- LECTURE CARD: handles exams 1–3, final, and lecture extra credit -->
         <article class="card left" aria-labelledby="lectureTitle">
             <h2 id="lectureTitle">Lecture</h2>
             <div class="hint">Exams are 0–100 each. Extra credit is not guaranteed.</div>
 
+            <!-- Individual lecture inputs -->
             <div class="row"><label for="ex1">Exam 1</label><input id="ex1" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
             <div class="row"><label for="ex2">Exam 2</label><input id="ex2" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
             <div class="row"><label for="ex3">Exam 3</label><input id="ex3" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
             <div class="row"><label for="finalLec">Final Exam</label><input id="finalLec" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
             <div class="row"><label for="ecLec">Extra Credit (≤10)</label><input id="ecLec" type="number" min="0" max="10" step="1" value="" inputmode="decimal"></div>
 
+            <!-- Replacement rule status -->
             <div class="box" id="lectureExplain">
                 Replacement: <span class="mono" id="lecReplaceMsg">—</span>
             </div>
+
+            <!-- Lecture subtotals and totals -->
             <div class="totals">
                 <div class="pill">Lecture subtotal: <span id="lecSubtotal">0</span> / 400</div>
                 <div class="pill">Lecture EC: <span id="lecEC">0</span> / 10</div>
                 <div class="pill">Lecture total: <span id="lecTotal">0</span></div>
             </div>
+
+            <!-- Reset for lecture-only inputs -->
             <div class="btns">
                 <button id="resetLecture" class="secondary" type="button">Reset lecture</button>
             </div>
         </article>
 
+        <!-- LAB CARD: handles 10 quizzes (drop lowest), task, midterm, final, lab extra credit -->
         <article class="card right" aria-labelledby="labTitle">
             <h2 id="labTitle">Lab</h2>
             <div class="hint">Quizzes are 0–5. One quiz is dropped. Task points are 0–5. Midterm and Final are 0–50. Extra credit is not guaranteed.</div>
 
+            <!-- Quizzes grid (10 inputs). Lowest one will be dropped in calculation. -->
             <div class="box">
                 <strong>Lab Quizzes (10×, 0–5)</strong>
                 <div class="grid quiz-grid" style="margin-top:8px">
@@ -153,14 +200,17 @@
                     <input aria-label="Quiz 9" id="q9" type="number" min="0" max="5" step="1" inputmode="decimal">
                     <input aria-label="Quiz 10" id="q10" type="number" min="0" max="5" step="1" inputmode="decimal">
                 </div>
+                <!-- Displays which quiz was dropped (index and points) -->
                 <div class="hint" id="quizDropMsg" style="margin-top:8px">Dropped quiz: —</div>
             </div>
 
+            <!-- Other lab components -->
             <div class="row"><label for="task">Task Points (0–5)</label><input id="task" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
             <div class="row"><label for="mid">Midterm (0–50)</label><input id="mid" type="number" min="0" max="50" step="1" inputmode="decimal"></div>
             <div class="row"><label for="fin">Final (0–50)</label><input id="fin" type="number" min="0" max="50" step="1" inputmode="decimal"></div>
             <div class="row"><label for="ecLab">Extra Credit (≤5)</label><input id="ecLab" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
 
+            <!-- Lab subtotals and total -->
             <div class="totals">
                 <div class="pill">Lab quizzes (best 9): <span id="quizBest">0</span> / 45</div>
                 <div class="pill">Task: <span id="taskOut">0</span> / 5</div>
@@ -169,22 +219,30 @@
                 <div class="pill">Lab EC: <span id="labEC">0</span> / 5</div>
                 <div class="pill">Lab total: <span id="labTotal">0</span></div>
             </div>
+
+            <!-- Reset for lab-only inputs -->
             <div class="btns">
                 <button id="resetLab" class="secondary" type="button">Reset lab</button>
             </div>
         </article>
 
+        <!-- OVERALL CARD: aggregates lecture and lab into course totals and thresholds -->
         <article class="card full" aria-labelledby="overallTitle">
             <h2 id="overallTitle">Overall</h2>
+
+            <!-- Course total and current letter grade -->
             <div class="totals">
                 <div class="pill">Course total: <span id="courseTotal">0</span> / 550</div>
                 <div class="pill">Letter grade: <span id="letter" class="good">F</span></div>
             </div>
 
+            <!-- Non-negative “points needed to next thresholds” -->
             <div class="box" id="targetsBox">
                 <div style="margin-bottom:6px"><strong>Points needed for next thresholds</strong></div>
                 <div id="targets" class="mono">—</div>
             </div>
+
+            <!-- Reset all inputs -->
             <div class="btns">
                 <button id="resetAll" type="button">Reset all</button>
             </div>
@@ -192,10 +250,17 @@
     </section>
 </main>
 
-<div class="footer">Logic: Lowest lecture exam will be replaced by the final. One lab quiz is dropped. Thresholds: A 495, B 440, C 385, D 330.</div>
+<!-- Footer: summarizes rules and links to the repository -->
+<div class="footer">
+    Logic: Lowest lecture exam will be replaced by the final. One lab quiz is dropped. Thresholds: A 495, B 440, C 385, D 330.
+    &nbsp;|&nbsp;
+    <a href="https://github.com/CalebHendren/micrograde/" target="_blank" rel="noopener">View source on GitHub</a>
+</div>
 
 <script>
-    // Utility: clamp numeric input to [min,max]
+    // Utility: read and clamp a numeric <input> by id to [min, max].
+    // - Returns a number (NaN treated as 0).
+    // - If the user enters an out-of-range value, the visible field is corrected.
     function valNum(id, min=0, max=Infinity){
         const el = document.getElementById(id);
         let v = parseFloat(el.value);
@@ -208,31 +273,46 @@
         return v;
     }
 
+    // Compute lecture total with replacement rule.
+    // If final exam (f) > lowest of Exams 1–3, drop that lowest exam and count f twice.
+    // Returns:
+    //   total: number (includes lecture EC)
+    //   replaced: boolean
+    //   replacedIndex: 1..3 or null
+    //   replacedValue: the dropped lowest exam's points
+    //   finalScore: f
     function calcLecture(){
         const e1 = valNum('ex1', 0, 100);
         const e2 = valNum('ex2', 0, 100);
         const e3 = valNum('ex3', 0, 100);
         const f  = valNum('finalLec', 0, 100);
         const ec = valNum('ecLec', 0, 10);
+
         const exams = [e1, e2, e3];
         const minExam = Math.min(...exams);
-        let minIdx = exams.indexOf(minExam); // 0-based for Exam 1..3
+        let minIdx = exams.indexOf(minExam); // 0-based index for Exam 1..3
         let replaced = false;
-        let totalNoEC, total;
+
+        // totalNoEC includes only exams and final logic (no EC)
+        let totalNoEC;
         if (f > minExam){
-            // Replace lowest exam with final
+            // drop the lowest exam and add the final twice
             totalNoEC = (e1 + e2 + e3 + f) - minExam + f;
             replaced = true;
         } else {
+            // no replacement; sum as-is
             totalNoEC = e1 + e2 + e3 + f;
         }
-        total = totalNoEC + ec;
 
-        // UI updates
-        document.getElementById('lecSubtotal').textContent = Math.round(totalNoEC - ec);
+        // full lecture total adds EC
+        const total = totalNoEC + ec;
+
+        // Update UI pills for lecture
+        document.getElementById('lecSubtotal').textContent = Math.round(totalNoEC - ec); // raw subtotal sans EC
         document.getElementById('lecEC').textContent = ec.toString();
         document.getElementById('lecTotal').textContent = Math.round(total);
 
+        // Replacement message
         const msg = replaced
             ? `Final replaces Exam ${minIdx+1} (lowest = ${minExam}).`
             : 'No replacement. Final not higher than lowest exam.';
@@ -241,25 +321,36 @@
         return { total, replaced, replacedIndex: replaced ? (minIdx+1) : null, replacedValue: minExam, finalScore: f };
     }
 
+    // Compute lab total with "drop lowest quiz" rule.
+    // Returns:
+    //   total: number (includes lab EC)
+    //   droppedQuizIndex: 1..10
+    //   droppedQuizValue: number
     function calcLab(){
+        // Gather all 10 quiz values in 0..5
         const qs = [];
         for (let i=1;i<=10;i++) qs.push(valNum('q'+i, 0, 5));
-        // find lowest quiz; on ties drop the first occurrence
+
+        // Find lowest quiz; on ties, drop the first occurrence
         let minVal = qs[0], minIdx = 0;
         for (let i=1;i<qs.length;i++){
             if (qs[i] < minVal){ minVal = qs[i]; minIdx = i; }
         }
-        const sumAll = qs.reduce((a,b)=>a+b,0);
-        const best9 = sumAll - minVal; // drop one
 
+        // Best 9 quizzes = total minus the dropped lowest
+        const sumAll = qs.reduce((a,b)=>a+b,0);
+        const best9 = sumAll - minVal;
+
+        // Other lab components
         const task = valNum('task', 0, 5);
         const mid  = valNum('mid', 0, 50);
         const fin  = valNum('fin', 0, 50);
         const ec   = valNum('ecLab', 0, 5);
 
+        // Total lab points (with EC)
         const total = best9 + task + mid + fin + ec;
 
-        // UI
+        // Update UI for lab subtotals
         document.getElementById('quizBest').textContent = Math.round(best9);
         document.getElementById('taskOut').textContent = Math.round(task);
         document.getElementById('midOut').textContent  = Math.round(mid);
@@ -267,11 +358,13 @@
         document.getElementById('labEC').textContent   = Math.round(ec);
         document.getElementById('labTotal').textContent= Math.round(total);
 
+        // Display which quiz was dropped (1-based index)
         document.getElementById('quizDropMsg').textContent = `Dropped quiz: Quiz ${minIdx+1} (${minVal} pts).`;
 
         return { total, droppedQuizIndex: minIdx+1, droppedQuizValue: minVal };
     }
 
+    // Map numeric total to letter grade based on fixed thresholds
     function letterFromTotal(total){
         if (total >= 495) return 'A';
         if (total >= 440) return 'B';
@@ -280,20 +373,28 @@
         return 'F';
     }
 
+    // Aggregate lecture and lab and update all UI outputs
     function computeOverall(){
         const lec = calcLecture();
         const lab = calcLab();
         const course = lec.total + lab.total;
 
+        // Show course total
         document.getElementById('courseTotal').textContent = Math.round(course);
 
+        // Current letter grade with color class
         const letter = letterFromTotal(course);
         const letterSpan = document.getElementById('letter');
         letterSpan.textContent = letter;
         letterSpan.className = '';
-        letterSpan.classList.add(letter === 'A' ? 'ok' : letter === 'B' ? 'good' : letter === 'C' ? 'warn' : letter === 'D' ? 'bad' : 'bad');
+        letterSpan.classList.add(
+            letter === 'A' ? 'ok'
+                : letter === 'B' ? 'good'
+                    : letter === 'C' ? 'warn'
+                        : /* D or F */       'bad'
+        );
 
-        // Targets logic per instructions
+        // Compose non-negative “points needed” text per current letter
         const T = { A:495, B:440, C:385, D:330 };
         const lines = [];
         if (letter === 'A'){
@@ -310,26 +411,32 @@
         document.getElementById('targets').textContent = lines.join(' ');
     }
 
-    // Wire inputs
+    // Wire input events for all numeric fields to recompute totals live
     const allInputs = Array.from(document.querySelectorAll('input[type="number"]'));
     allInputs.forEach(i => i.addEventListener('input', computeOverall));
 
-    // Reset buttons
+    // Helpers to clear specific groups of inputs, then recompute
     function clearInputs(ids){ ids.forEach(id => document.getElementById(id).value = ''); }
+
+    // Reset lecture-only inputs
     document.getElementById('resetLecture').addEventListener('click', ()=>{
         clearInputs(['ex1','ex2','ex3','finalLec','ecLec']);
         computeOverall();
     });
+
+    // Reset lab-only inputs
     document.getElementById('resetLab').addEventListener('click', ()=>{
         clearInputs(['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','task','mid','fin','ecLab']);
         computeOverall();
     });
+
+    // Reset all inputs in one action
     document.getElementById('resetAll').addEventListener('click', ()=>{
         clearInputs(['ex1','ex2','ex3','finalLec','ecLec','q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','task','mid','fin','ecLab']);
         computeOverall();
     });
 
-    // Initial
+    // Initial compute to populate all outputs on page load
     computeOverall();
 </script>
 </body>
