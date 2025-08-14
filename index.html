@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Course Grade Calculator (Dracula)</title>
+    <style>
+        :root{
+            /* Dracula palette */
+            --bg: #282a36;
+            --bg-soft: #2f3242; /* custom blend between bg and currentLine */
+            --line: #44475a; /* current line */
+            --text: #f8f8f2; /* foreground */
+            --muted: #bfbfd6; /* soft text */
+            --comment: #6272a4;
+            --cyan: #8be9fd;
+            --green: #50fa7b;
+            --orange: #ffb86c;
+            --pink: #ff79c6;
+            --purple: #bd93f9;
+            --red: #ff5555;
+            --yellow: #f1fa8c;
+            --focus-ring: #8be9fd88;
+            --card: #1f202b; /* deeper card bg for contrast */
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0; background:var(--bg); color:var(--text);
+            font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        }
+        header{
+            padding: 20px 16px; border-bottom:1px solid var(--line);
+            background: linear-gradient(180deg, var(--bg-soft), var(--bg) 70%);
+        }
+        h1{margin:0 0 6px; font-size: clamp(20px,3.2vw,28px); font-weight:800; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,sans-serif; color: var(--purple);}
+        .sub{color:var(--comment); font-size:14px}
+
+        .wrap{max-width:1100px; margin: 0 auto; padding: 16px}
+
+        .grid{
+            display:grid; gap:16px;
+            grid-template-columns: repeat(12, 1fr);
+            align-items:start;
+        }
+        .card{
+            grid-column: span 12;
+            background: var(--card);
+            border:1px solid var(--line);
+            border-radius:12px; padding:14px;
+            box-shadow: 0 6px 20px rgba(0,0,0,.25);
+        }
+        @media (min-width: 900px){
+            .card.left{grid-column: span 6}
+            .card.right{grid-column: span 6}
+            .card.full{grid-column: span 12}
+        }
+
+        .card h2{margin:0 0 10px; font-size:18px}
+        .hint{color:var(--muted); font-size:13px; margin: 4px 0 10px}
+
+        .row{display:grid; grid-template-columns: 1fr auto; gap:10px; align-items:center; margin:6px 0}
+        .row label{font-size:14px}
+
+        input[type="number"]{
+            width:120px; padding:8px 10px; border-radius:8px; border:1px solid var(--line);
+            background: var(--bg-soft); color: var(--text);
+            outline:none; font-size:14px;
+        }
+        input[type="number"]:focus{border-color:var(--purple); box-shadow:0 0 0 3px var(--focus-ring)}
+
+        .box{
+            background: var(--bg-soft);
+            border:1px solid var(--line);
+            border-radius:10px; padding:10px; margin-top:10px; font-size:14px
+        }
+
+        .totals{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px}
+        .pill{
+            border:1px solid var(--line); background:var(--bg-soft); color:var(--text);
+            padding:6px 10px; border-radius:999px; font-size:13px
+        }
+
+        .ok{color: var(--green)}
+        .warn{color: var(--orange)}
+        .bad{color: var(--red)}
+        .good{color: var(--cyan)}
+
+        .footer{padding:14px; text-align:center; color:var(--comment); font-size:12px}
+        a{color:var(--cyan)}
+
+        .btns{display:flex; gap:10px; margin-top:10px}
+        button{
+            background:var(--purple); color:var(--bg);
+            border:none; padding:10px 14px; border-radius:10px; font-weight:600; cursor:pointer;
+        }
+        button.secondary{background:transparent; color:var(--text); border:1px solid var(--line)}
+        button:focus{outline:none; box-shadow:0 0 0 3px var(--focus-ring)}
+        .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+        /* Quiz grid sizing to prevent overlap/overhang */
+        .quiz-grid{ gap:8px; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); }
+        .quiz-grid input[type="number"]{ width:100%; min-width:0; padding:6px 8px; }
+    </style>
+</head>
+<body>
+<header>
+    <div class="wrap">
+        <h1>Preliminary Microbiology Grade Calculator</h1>
+        <div class="sub">Your official letter grade will be calculated by your lecture instructor.</div>
+    </div>
+</header>
+
+<main class="wrap">
+    <section class="grid">
+        <article class="card left" aria-labelledby="lectureTitle">
+            <h2 id="lectureTitle">Lecture</h2>
+            <div class="hint">Exams are 0–100 each. Extra credit is not guaranteed.</div>
+
+            <div class="row"><label for="ex1">Exam 1</label><input id="ex1" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
+            <div class="row"><label for="ex2">Exam 2</label><input id="ex2" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
+            <div class="row"><label for="ex3">Exam 3</label><input id="ex3" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
+            <div class="row"><label for="finalLec">Final Exam</label><input id="finalLec" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
+            <div class="row"><label for="ecLec">Extra Credit (≤10)</label><input id="ecLec" type="number" min="0" max="10" step="1" value="" inputmode="decimal"></div>
+
+            <div class="box" id="lectureExplain">
+                Replacement: <span class="mono" id="lecReplaceMsg">—</span>
+            </div>
+            <div class="totals">
+                <div class="pill">Lecture subtotal: <span id="lecSubtotal">0</span> / 400</div>
+                <div class="pill">Lecture EC: <span id="lecEC">0</span> / 10</div>
+                <div class="pill">Lecture total: <span id="lecTotal">0</span></div>
+            </div>
+            <div class="btns">
+                <button id="resetLecture" class="secondary" type="button">Reset lecture</button>
+            </div>
+        </article>
+
+        <article class="card right" aria-labelledby="labTitle">
+            <h2 id="labTitle">Lab</h2>
+            <div class="hint">Quizzes are 0–5. One quiz is dropped. Task points are 0–5. Midterm and Final are 0–50. Extra credit is not guaranteed.</div>
+
+            <div class="box">
+                <strong>Lab Quizzes (10×, 0–5)</strong>
+                <div class="grid quiz-grid" style="margin-top:8px">
+                    <input aria-label="Quiz 1" id="q1" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 2" id="q2" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 3" id="q3" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 4" id="q4" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 5" id="q5" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 6" id="q6" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 7" id="q7" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 8" id="q8" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 9" id="q9" type="number" min="0" max="5" step="1" inputmode="decimal">
+                    <input aria-label="Quiz 10" id="q10" type="number" min="0" max="5" step="1" inputmode="decimal">
+                </div>
+                <div class="hint" id="quizDropMsg" style="margin-top:8px">Dropped quiz: —</div>
+            </div>
+
+            <div class="row"><label for="task">Task Points (0–5)</label><input id="task" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
+            <div class="row"><label for="mid">Midterm (0–50)</label><input id="mid" type="number" min="0" max="50" step="1" inputmode="decimal"></div>
+            <div class="row"><label for="fin">Final (0–50)</label><input id="fin" type="number" min="0" max="50" step="1" inputmode="decimal"></div>
+            <div class="row"><label for="ecLab">Extra Credit (≤5)</label><input id="ecLab" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
+
+            <div class="totals">
+                <div class="pill">Lab quizzes (best 9): <span id="quizBest">0</span> / 45</div>
+                <div class="pill">Task: <span id="taskOut">0</span> / 5</div>
+                <div class="pill">Midterm: <span id="midOut">0</span> / 50</div>
+                <div class="pill">Final: <span id="finOut">0</span> / 50</div>
+                <div class="pill">Lab EC: <span id="labEC">0</span> / 5</div>
+                <div class="pill">Lab total: <span id="labTotal">0</span></div>
+            </div>
+            <div class="btns">
+                <button id="resetLab" class="secondary" type="button">Reset lab</button>
+            </div>
+        </article>
+
+        <article class="card full" aria-labelledby="overallTitle">
+            <h2 id="overallTitle">Overall</h2>
+            <div class="totals">
+                <div class="pill">Course total: <span id="courseTotal">0</span> / 550</div>
+                <div class="pill">Letter grade: <span id="letter" class="good">F</span></div>
+            </div>
+
+            <div class="box" id="targetsBox">
+                <div style="margin-bottom:6px"><strong>Points needed for next thresholds</strong></div>
+                <div id="targets" class="mono">—</div>
+            </div>
+            <div class="btns">
+                <button id="resetAll" type="button">Reset all</button>
+            </div>
+        </article>
+    </section>
+</main>
+
+<div class="footer">Logic: Lowest lecture exam will be replaced by the final. One lab quiz is dropped. Thresholds: A 495, B 440, C 385, D 330.</div>
+
+<script>
+    // Utility: clamp numeric input to [min,max]
+    function valNum(id, min=0, max=Infinity){
+        const el = document.getElementById(id);
+        let v = parseFloat(el.value);
+        if (Number.isNaN(v)) v = 0;
+        if (v < min) v = min;
+        if (v > max) v = max;
+        // write back clamped visible value only if original was out of range
+        const raw = parseFloat(el.value);
+        if (!Number.isNaN(raw) && (raw < min || raw > max)) el.value = v;
+        return v;
+    }
+
+    function calcLecture(){
+        const e1 = valNum('ex1', 0, 100);
+        const e2 = valNum('ex2', 0, 100);
+        const e3 = valNum('ex3', 0, 100);
+        const f  = valNum('finalLec', 0, 100);
+        const ec = valNum('ecLec', 0, 10);
+        const exams = [e1, e2, e3];
+        const minExam = Math.min(...exams);
+        let minIdx = exams.indexOf(minExam); // 0-based for Exam 1..3
+        let replaced = false;
+        let totalNoEC, total;
+        if (f > minExam){
+            // Replace lowest exam with final
+            totalNoEC = (e1 + e2 + e3 + f) - minExam + f;
+            replaced = true;
+        } else {
+            totalNoEC = e1 + e2 + e3 + f;
+        }
+        total = totalNoEC + ec;
+
+        // UI updates
+        document.getElementById('lecSubtotal').textContent = Math.round(totalNoEC - ec);
+        document.getElementById('lecEC').textContent = ec.toString();
+        document.getElementById('lecTotal').textContent = Math.round(total);
+
+        const msg = replaced
+            ? `Final replaces Exam ${minIdx+1} (lowest = ${minExam}).`
+            : 'No replacement. Final not higher than lowest exam.';
+        document.getElementById('lecReplaceMsg').textContent = msg;
+
+        return { total, replaced, replacedIndex: replaced ? (minIdx+1) : null, replacedValue: minExam, finalScore: f };
+    }
+
+    function calcLab(){
+        const qs = [];
+        for (let i=1;i<=10;i++) qs.push(valNum('q'+i, 0, 5));
+        // find lowest quiz; on ties drop the first occurrence
+        let minVal = qs[0], minIdx = 0;
+        for (let i=1;i<qs.length;i++){
+            if (qs[i] < minVal){ minVal = qs[i]; minIdx = i; }
+        }
+        const sumAll = qs.reduce((a,b)=>a+b,0);
+        const best9 = sumAll - minVal; // drop one
+
+        const task = valNum('task', 0, 5);
+        const mid  = valNum('mid', 0, 50);
+        const fin  = valNum('fin', 0, 50);
+        const ec   = valNum('ecLab', 0, 5);
+
+        const total = best9 + task + mid + fin + ec;
+
+        // UI
+        document.getElementById('quizBest').textContent = Math.round(best9);
+        document.getElementById('taskOut').textContent = Math.round(task);
+        document.getElementById('midOut').textContent  = Math.round(mid);
+        document.getElementById('finOut').textContent  = Math.round(fin);
+        document.getElementById('labEC').textContent   = Math.round(ec);
+        document.getElementById('labTotal').textContent= Math.round(total);
+
+        document.getElementById('quizDropMsg').textContent = `Dropped quiz: Quiz ${minIdx+1} (${minVal} pts).`;
+
+        return { total, droppedQuizIndex: minIdx+1, droppedQuizValue: minVal };
+    }
+
+    function letterFromTotal(total){
+        if (total >= 495) return 'A';
+        if (total >= 440) return 'B';
+        if (total >= 385) return 'C';
+        if (total >= 330) return 'D';
+        return 'F';
+    }
+
+    function computeOverall(){
+        const lec = calcLecture();
+        const lab = calcLab();
+        const course = lec.total + lab.total;
+
+        document.getElementById('courseTotal').textContent = Math.round(course);
+
+        const letter = letterFromTotal(course);
+        const letterSpan = document.getElementById('letter');
+        letterSpan.textContent = letter;
+        letterSpan.className = '';
+        letterSpan.classList.add(letter === 'A' ? 'ok' : letter === 'B' ? 'good' : letter === 'C' ? 'warn' : letter === 'D' ? 'bad' : 'bad');
+
+        // Targets logic per instructions
+        const T = { A:495, B:440, C:385, D:330 };
+        const lines = [];
+        if (letter === 'A'){
+            lines.push('You have an A.');
+        } else if (letter === 'B'){
+            lines.push(`You have a B. Points to A: ${Math.max(0, T.A - course)}.`);
+        } else if (letter === 'C'){
+            lines.push(`You have a C. Points to B: ${Math.max(0, T.B - course)}, Points to A: ${Math.max(0, T.A - course)}.`);
+        } else if (letter === 'D'){
+            lines.push(`You have a D. Points to C: ${Math.max(0, T.C - course)}, Points to B: ${Math.max(0, T.B - course)}, Points to A: ${Math.max(0, T.A - course)}.`);
+        } else { // F
+            lines.push(`You have an F. Points to D: ${Math.max(0, T.D - course)}, to C: ${Math.max(0, T.C - course)}, to B: ${Math.max(0, T.B - course)}, to A: ${Math.max(0, T.A - course)}.`);
+        }
+        document.getElementById('targets').textContent = lines.join(' ');
+    }
+
+    // Wire inputs
+    const allInputs = Array.from(document.querySelectorAll('input[type="number"]'));
+    allInputs.forEach(i => i.addEventListener('input', computeOverall));
+
+    // Reset buttons
+    function clearInputs(ids){ ids.forEach(id => document.getElementById(id).value = ''); }
+    document.getElementById('resetLecture').addEventListener('click', ()=>{
+        clearInputs(['ex1','ex2','ex3','finalLec','ecLec']);
+        computeOverall();
+    });
+    document.getElementById('resetLab').addEventListener('click', ()=>{
+        clearInputs(['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','task','mid','fin','ecLab']);
+        computeOverall();
+    });
+    document.getElementById('resetAll').addEventListener('click', ()=>{
+        clearInputs(['ex1','ex2','ex3','finalLec','ecLec','q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','task','mid','fin','ecLab']);
+        computeOverall();
+    });
+
+    // Initial
+    computeOverall();
+</script>
+</body>
+</html>
