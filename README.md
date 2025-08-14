@@ -1,6 +1,6 @@
 # Preliminary Microbiology Grade Calculator
 
-**Live site:** https://calebhendren.github.io/micrograde/
+**Website:** https://calebhendren.github.io/micrograde/
 
 > **Disclaimer:** This tool is informational. The **official final letter grade is calculated by the instructor of record**.
 
