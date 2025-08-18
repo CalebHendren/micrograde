@@ -11,7 +11,7 @@
 ## Purpose
 - Enter scores for lecture and lab components.
 - View running totals, current letter grade, and points needed to reach higher thresholds.
-- See which **lecture exam** is replaced by the final (if applicable) and which **lab quiz** is dropped.
+- See which **lecture exam** is replaced by the final and which **lab quiz** is dropped.
 
 ## Grading logic
 
@@ -31,20 +31,20 @@
 
 ### Course totals and thresholds
 - Course base total (without extra credit): **400 (lecture) + 150 (lab) = 550**.
-- Extra credit can raise the numeric total above **550**. Thresholds do **not** change.
+- Extra credit can raise the numeric total above **550**. Thresholds do not change.
 
 **Letter-grade thresholds**
-- **A:** 495+
-- **B:** 440–494
-- **C:** 385–439
-- **D:** 330–384
-- **F:** <330
+- **A:** **493+**
+- **B:** **438–492**
+- **C:** **383–437**
+- **D:** **355–382**
+- **F:** **0–354**
 
 ## What the app displays
-- Which **lecture exam** was replaced by the final (if any).
+- Which **lecture exam** was replaced by the final.
 - Which **lab quiz** was dropped.
 - Subtotals for lecture and lab, course total, current letter grade.
-- Points needed to reach **A/B/C/D** per the rules above.
+- Points needed to reach **A/B/C/D**, shown to **two decimals** and **never negative**.
 
 ## Use
 1. Visit https://calebhendren.github.io/micrograde/

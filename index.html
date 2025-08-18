@@ -10,9 +10,9 @@
             If Final > lowest of Exams 1–3, drop that lowest exam and count Final twice.
           * Lab: 10 quizzes (5 pts each) with lowest one dropped → best 9 = 45 max,
             Task 5, Midterm 50, Final 50, EC ≤5.
-          * Course thresholds: A 495, B 440, C 385, D 330.
+          * Course thresholds: A 493, B 438, C 383, D 355.
       - UI shows: which lecture exam was replaced, which lab quiz was dropped,
-        lecture/lab totals, course total, letter, and non-negative points needed to next thresholds.
+        lecture/lab totals, course total, letter, and non-negative points needed to next thresholds (shown to 2 decimals).
     -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -160,7 +160,7 @@
             <div class="row"><label for="ex2">Exam 2</label><input id="ex2" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
             <div class="row"><label for="ex3">Exam 3</label><input id="ex3" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
             <div class="row"><label for="finalLec">Final Exam</label><input id="finalLec" type="number" min="0" max="100" step="1" value="" inputmode="decimal"></div>
-            <div class="row"><label for="ecLec">Extra Credit (≤10)</label><input id="ecLec" type="number" min="0" max="10" step="1" value="" inputmode="decimal"></div>
+            <div class="row"><label for="ecLec">Extra Credit (If provided)</label><input id="ecLec" type="number" min="0" max="10" step="1" value="" inputmode="decimal"></div>
 
             <!-- Replacement rule status -->
             <div class="box" id="lectureExplain">
@@ -208,7 +208,7 @@
             <div class="row"><label for="task">Task Points (0–5)</label><input id="task" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
             <div class="row"><label for="mid">Midterm (0–50)</label><input id="mid" type="number" min="0" max="50" step="1" inputmode="decimal"></div>
             <div class="row"><label for="fin">Final (0–50)</label><input id="fin" type="number" min="0" max="50" step="1" inputmode="decimal"></div>
-            <div class="row"><label for="ecLab">Extra Credit (≤5)</label><input id="ecLab" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
+            <div class="row"><label for="ecLab">Extra Credit (If provided)</label><input id="ecLab" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
 
             <!-- Lab subtotals and total -->
             <div class="totals">
@@ -252,7 +252,7 @@
 
 <!-- Footer: summarizes rules and links to the repository -->
 <div class="footer">
-    Logic: Lowest lecture exam will be replaced by the final. One lab quiz is dropped. Thresholds: A 495, B 440, C 385, D 330.
+    Logic: Lowest lecture exam will be replaced by the final. One lab quiz is dropped. Thresholds: A 493, B 438, C 383, D 355.
     &nbsp;|&nbsp;
     <a href="https://github.com/CalebHendren/micrograde/" target="_blank" rel="noopener">View source on GitHub</a>
 </div>
@@ -308,7 +308,7 @@
         const total = totalNoEC + ec;
 
         // Update UI pills for lecture
-        document.getElementById('lecSubtotal').textContent = Math.round(totalNoEC - ec); // raw subtotal sans EC
+        document.getElementById('lecSubtotal').textContent = Math.round(totalNoEC); // subtotal sans EC
         document.getElementById('lecEC').textContent = ec.toString();
         document.getElementById('lecTotal').textContent = Math.round(total);
 
@@ -366,10 +366,10 @@
 
     // Map numeric total to letter grade based on fixed thresholds
     function letterFromTotal(total){
-        if (total >= 495) return 'A';
-        if (total >= 440) return 'B';
-        if (total >= 385) return 'C';
-        if (total >= 330) return 'D';
+        if (total >= 493) return 'A';
+        if (total >= 438) return 'B';
+        if (total >= 383) return 'C';
+        if (total >= 355) return 'D';
         return 'F';
     }
 
@@ -395,18 +395,19 @@
         );
 
         // Compose non-negative “points needed” text per current letter
-        const T = { A:495, B:440, C:385, D:330 };
+        const T = { A:493, B:438, C:383, D:355 };
+        const fmt = (x) => Math.max(0, x).toFixed(2);
         const lines = [];
         if (letter === 'A'){
             lines.push('You have an A.');
         } else if (letter === 'B'){
-            lines.push(`You have a B. Points to A: ${Math.max(0, T.A - course)}.`);
+            lines.push(`You have a B. Points to A: ${fmt(T.A - course)}.`);
         } else if (letter === 'C'){
-            lines.push(`You have a C. Points to B: ${Math.max(0, T.B - course)}, Points to A: ${Math.max(0, T.A - course)}.`);
+            lines.push(`You have a C. Points to B: ${fmt(T.B - course)}, Points to A: ${fmt(T.A - course)}.`);
         } else if (letter === 'D'){
-            lines.push(`You have a D. Points to C: ${Math.max(0, T.C - course)}, Points to B: ${Math.max(0, T.B - course)}, Points to A: ${Math.max(0, T.A - course)}.`);
+            lines.push(`You have a D. Points to C: ${fmt(T.C - course)}, Points to B: ${fmt(T.B - course)}, Points to A: ${fmt(T.A - course)}.`);
         } else { // F
-            lines.push(`You have an F. Points to D: ${Math.max(0, T.D - course)}, to C: ${Math.max(0, T.C - course)}, to B: ${Math.max(0, T.B - course)}, to A: ${Math.max(0, T.A - course)}.`);
+            lines.push(`You have an F. Points to D: ${fmt(T.D - course)}, to C: ${fmt(T.C - course)}, to B: ${fmt(T.B - course)}, to A: ${fmt(T.A - course)}.`);
         }
         document.getElementById('targets').textContent = lines.join(' ');
     }
