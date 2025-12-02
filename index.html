@@ -143,8 +143,6 @@
         <!-- Page title and disclaimer brief -->
         <h1>Preliminary Microbiology Grade Calculator</h1>
         <div class="sub">Your official letter grade will be calculated by your lecture instructor.</div>
-        <!-- Optional: repo link in header (kept minimal to avoid layout changes) -->
-        <!-- <div class="sub"><a href="https://github.com/CalebHendren/micrograde/" target="_blank" rel="noopener">View source on GitHub</a></div> -->
     </div>
 </header>
 
@@ -172,6 +170,11 @@
                 <div class="pill">Lecture subtotal: <span id="lecSubtotal">0</span> / 400</div>
                 <div class="pill">Lecture EC: <span id="lecEC">0</span> / 10</div>
                 <div class="pill">Lecture total: <span id="lecTotal">0</span></div>
+            </div>
+
+            <!-- Running total display for lecture -->
+            <div style="margin-top:12px; padding:10px; background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; text-align:center; font-size:18px; font-weight:600">
+                Lecture: <span id="lecRunning">0</span> / 400
             </div>
 
             <!-- Reset for lecture-only inputs -->
@@ -220,6 +223,11 @@
                 <div class="pill">Lab total: <span id="labTotal">0</span></div>
             </div>
 
+            <!-- Running total display for lab -->
+            <div style="margin-top:12px; padding:10px; background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; text-align:center; font-size:18px; font-weight:600">
+                Lab: <span id="labRunning">0</span> / 150
+            </div>
+
             <!-- Reset for lab-only inputs -->
             <div class="btns">
                 <button id="resetLab" class="secondary" type="button">Reset lab</button>
@@ -236,7 +244,7 @@
                 <div class="pill">Letter grade: <span id="letter" class="good">F</span></div>
             </div>
 
-            <!-- Non-negative “points needed to next thresholds” -->
+            <!-- Non-negative "points needed to next thresholds" -->
             <div class="box" id="targetsBox">
                 <div style="margin-bottom:6px"><strong>Points needed for next thresholds</strong></div>
                 <div id="targets" class="mono">—</div>
@@ -311,6 +319,7 @@
         document.getElementById('lecSubtotal').textContent = Math.round(totalNoEC); // subtotal sans EC
         document.getElementById('lecEC').textContent = ec.toString();
         document.getElementById('lecTotal').textContent = Math.round(total);
+        document.getElementById('lecRunning').textContent = Math.round(total); // running total
 
         // Replacement message
         const msg = replaced
@@ -357,6 +366,7 @@
         document.getElementById('finOut').textContent  = Math.round(fin);
         document.getElementById('labEC').textContent   = Math.round(ec);
         document.getElementById('labTotal').textContent= Math.round(total);
+        document.getElementById('labRunning').textContent = Math.round(total); // running total
 
         // Display which quiz was dropped (1-based index)
         document.getElementById('quizDropMsg').textContent = `Dropped quiz: Quiz ${minIdx+1} (${minVal} pts).`;
@@ -394,7 +404,7 @@
                         : /* D or F */       'bad'
         );
 
-        // Compose non-negative “points needed” text per current letter
+        // Compose non-negative "points needed" text per current letter
         const T = { A:493, B:438, C:383, D:355 };
         const fmt = (x) => Math.max(0, x).toFixed(2);
         const lines = [];
