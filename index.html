@@ -167,7 +167,7 @@
 
             <!-- Running total display for lecture -->
             <div style="margin-top:12px; padding:10px; background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; text-align:center; font-size:18px; font-weight:600">
-                Lecture: <span id="lecRunning">0</span> / 400
+                Lecture: <span id="lecRunning">0</span> / 400 (<span id="lecPercent">0.00</span>%)
             </div>
 
             <!-- Reset for lecture-only inputs -->
@@ -217,7 +217,7 @@
 
             <!-- Running total display for lab -->
             <div style="margin-top:12px; padding:10px; background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; text-align:center; font-size:18px; font-weight:600">
-                Lab: <span id="labRunning">0</span> / 150
+                Lab: <span id="labRunning">0</span> / 150 (<span id="labPercent">0.00</span>%)
             </div>
 
             <!-- Reset for lab-only inputs -->
@@ -232,7 +232,7 @@
 
             <!-- Course total and current letter grade -->
             <div class="totals">
-                <div class="pill">Course total: <span id="courseTotal">0</span> / 550</div>
+                <div class="pill">Course total: <span id="courseTotal">0</span> / 550 (<span id="coursePercent">0.00</span>%)</div>
                 <div class="pill">Letter grade: <span id="letter" class="good">F</span></div>
             </div>
 
@@ -307,8 +307,9 @@
         // full lecture total adds EC
         const total = totalNoEC + ec;
 
-        // Update running total display
+        // Update running total display with percentage
         document.getElementById('lecRunning').textContent = Math.round(total);
+        document.getElementById('lecPercent').textContent = ((total / 400) * 100).toFixed(2);
 
         // Replacement message
         const msg = replaced
@@ -355,8 +356,9 @@
         document.getElementById('finOut').textContent  = Math.round(fin);
         document.getElementById('labEC').textContent   = Math.round(ec);
         
-        // Update running total display
+        // Update running total display with percentage
         document.getElementById('labRunning').textContent = Math.round(total);
+        document.getElementById('labPercent').textContent = ((total / 150) * 100).toFixed(2);
 
         // Display which quiz was dropped (1-based index)
         document.getElementById('quizDropMsg').textContent = `Dropped quiz: Quiz ${minIdx+1} (${minVal} pts).`;
@@ -379,8 +381,9 @@
         const lab = calcLab();
         const course = lec.total + lab.total;
 
-        // Show course total
+        // Show course total with percentage
         document.getElementById('courseTotal').textContent = Math.round(course);
+        document.getElementById('coursePercent').textContent = ((course / 550) * 100).toFixed(2);
 
         // Current letter grade with color class
         const letter = letterFromTotal(course);
