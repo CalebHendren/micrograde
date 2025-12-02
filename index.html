@@ -165,13 +165,6 @@
                 Replacement: <span class="mono" id="lecReplaceMsg">—</span>
             </div>
 
-            <!-- Lecture subtotals and totals -->
-            <div class="totals">
-                <div class="pill">Lecture subtotal: <span id="lecSubtotal">0</span> / 400</div>
-                <div class="pill">Lecture EC: <span id="lecEC">0</span> / 10</div>
-                <div class="pill">Lecture total: <span id="lecTotal">0</span></div>
-            </div>
-
             <!-- Running total display for lecture -->
             <div style="margin-top:12px; padding:10px; background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; text-align:center; font-size:18px; font-weight:600">
                 Lecture: <span id="lecRunning">0</span> / 400
@@ -213,14 +206,13 @@
             <div class="row"><label for="fin">Final (0–50)</label><input id="fin" type="number" min="0" max="50" step="1" inputmode="decimal"></div>
             <div class="row"><label for="ecLab">Extra Credit (If provided)</label><input id="ecLab" type="number" min="0" max="5" step="1" inputmode="decimal"></div>
 
-            <!-- Lab subtotals and total -->
+            <!-- Lab component breakdown -->
             <div class="totals">
                 <div class="pill">Lab quizzes (best 9): <span id="quizBest">0</span> / 45</div>
                 <div class="pill">Task: <span id="taskOut">0</span> / 5</div>
                 <div class="pill">Midterm: <span id="midOut">0</span> / 50</div>
                 <div class="pill">Final: <span id="finOut">0</span> / 50</div>
                 <div class="pill">Lab EC: <span id="labEC">0</span> / 5</div>
-                <div class="pill">Lab total: <span id="labTotal">0</span></div>
             </div>
 
             <!-- Running total display for lab -->
@@ -315,11 +307,8 @@
         // full lecture total adds EC
         const total = totalNoEC + ec;
 
-        // Update UI pills for lecture
-        document.getElementById('lecSubtotal').textContent = Math.round(totalNoEC); // subtotal sans EC
-        document.getElementById('lecEC').textContent = ec.toString();
-        document.getElementById('lecTotal').textContent = Math.round(total);
-        document.getElementById('lecRunning').textContent = Math.round(total); // running total
+        // Update running total display
+        document.getElementById('lecRunning').textContent = Math.round(total);
 
         // Replacement message
         const msg = replaced
@@ -359,14 +348,15 @@
         // Total lab points (with EC)
         const total = best9 + task + mid + fin + ec;
 
-        // Update UI for lab subtotals
+        // Update UI for lab component breakdown
         document.getElementById('quizBest').textContent = Math.round(best9);
         document.getElementById('taskOut').textContent = Math.round(task);
         document.getElementById('midOut').textContent  = Math.round(mid);
         document.getElementById('finOut').textContent  = Math.round(fin);
         document.getElementById('labEC').textContent   = Math.round(ec);
-        document.getElementById('labTotal').textContent= Math.round(total);
-        document.getElementById('labRunning').textContent = Math.round(total); // running total
+        
+        // Update running total display
+        document.getElementById('labRunning').textContent = Math.round(total);
 
         // Display which quiz was dropped (1-based index)
         document.getElementById('quizDropMsg').textContent = `Dropped quiz: Quiz ${minIdx+1} (${minVal} pts).`;
