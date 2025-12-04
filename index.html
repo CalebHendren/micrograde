@@ -258,6 +258,47 @@
 </div>
 
 <script>
+    // LocalStorage functions
+    function saveToLocalStorage(){
+        const data = {
+            ex1: document.getElementById('ex1').value,
+            ex2: document.getElementById('ex2').value,
+            ex3: document.getElementById('ex3').value,
+            finalLec: document.getElementById('finalLec').value,
+            ecLec: document.getElementById('ecLec').value,
+            q1: document.getElementById('q1').value,
+            q2: document.getElementById('q2').value,
+            q3: document.getElementById('q3').value,
+            q4: document.getElementById('q4').value,
+            q5: document.getElementById('q5').value,
+            q6: document.getElementById('q6').value,
+            q7: document.getElementById('q7').value,
+            q8: document.getElementById('q8').value,
+            q9: document.getElementById('q9').value,
+            q10: document.getElementById('q10').value,
+            task: document.getElementById('task').value,
+            mid: document.getElementById('mid').value,
+            fin: document.getElementById('fin').value,
+            ecLab: document.getElementById('ecLab').value
+        };
+        localStorage.setItem('microGradeFullData', JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage(){
+        const saved = localStorage.getItem('microGradeFullData');
+        if (saved){
+            try {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el && data[key]) el.value = data[key];
+                });
+            } catch (e) {
+                console.error('Error loading saved data:', e);
+            }
+        }
+    }
+
     // Utility: read and clamp a numeric <input> by id to [min, max].
     // - Returns a number (NaN treated as 0).
     // - If the user enters an out-of-range value, the visible field is corrected.
@@ -413,6 +454,9 @@
             lines.push(`You have an F. Points to D: ${fmt(T.D - course)}, to C: ${fmt(T.C - course)}, to B: ${fmt(T.B - course)}, to A: ${fmt(T.A - course)}.`);
         }
         document.getElementById('targets').textContent = lines.join(' ');
+        
+        // Save to localStorage after each calculation
+        saveToLocalStorage();
     }
 
     // Wire input events for all numeric fields to recompute totals live
@@ -420,27 +464,33 @@
     allInputs.forEach(i => i.addEventListener('input', computeOverall));
 
     // Helpers to clear specific groups of inputs, then recompute
-    function clearInputs(ids){ ids.forEach(id => document.getElementById(id).value = ''); }
+    function clearInputs(ids){ 
+        ids.forEach(id => document.getElementById(id).value = ''); 
+    }
 
     // Reset lecture-only inputs
     document.getElementById('resetLecture').addEventListener('click', ()=>{
         clearInputs(['ex1','ex2','ex3','finalLec','ecLec']);
+        saveToLocalStorage();
         computeOverall();
     });
 
     // Reset lab-only inputs
     document.getElementById('resetLab').addEventListener('click', ()=>{
         clearInputs(['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','task','mid','fin','ecLab']);
+        saveToLocalStorage();
         computeOverall();
     });
 
     // Reset all inputs in one action
     document.getElementById('resetAll').addEventListener('click', ()=>{
         clearInputs(['ex1','ex2','ex3','finalLec','ecLec','q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','task','mid','fin','ecLab']);
+        localStorage.removeItem('microGradeFullData');
         computeOverall();
     });
 
-    // Initial compute to populate all outputs on page load
+    // Load saved data and initial compute to populate all outputs on page load
+    loadFromLocalStorage();
     computeOverall();
 </script>
 </body>
