@@ -1,63 +1,121 @@
 # Preliminary Microbiology Grade Calculator
 
-**Website:** https://calebhendren.github.io/micrograde/
+**Website:** <https://calebhendren.github.io/micrograde/>
 
 > **Disclaimer:** This tool is informational. The **official final letter grade is calculated by the instructor of record**.
 
 ## Privacy and data
+
 - All calculations run **client-side** in your browser.
 - **No grades are uploaded** or sent to any server.
+- Scores are saved to your browser's local storage so they persist between visits.
 
 ## Purpose
-- Enter scores for lecture and lab components.
-- View running totals, current letter grade, and points needed to reach higher thresholds.
-- See which **lecture exam** is replaced by the final and which **lab quiz** is dropped.
 
-## Grading logic
+- Enter scores for your assessments and view your running course grade.
+- See your current letter grade and what you need to reach higher thresholds.
+- See whether the **replacement policy** benefits your grade.
 
-### Lecture
-- Components: Exam 1 (100), Exam 2 (100), Exam 3 (100), Final (100), Extra Credit (cap **+10**).
-- **Replacement rule:** If the final exam score is **greater than the lowest** of Exam 1–3, that **lowest exam is dropped** and the **final counts twice**.  
-  Example: 78, 92, 83, Final 99 → becomes 99, 92, 83, 99.
-- Lecture base maximum without extra credit: **400**. With extra credit, lecture can exceed base by **up to 10**.
+## Section types
 
-### Lab
-- **10 lab quizzes** across Labs 2–6 and 8–12, **5 points each**. The **lowest single quiz** is **dropped** → best 9 count (max **45**).
-- Task points: **5**.
-- Midterm: **50**.
-- Final: **50**.
-- Extra Credit (if provided): cap **+5**.
-- Lab base maximum without extra credit: **150**. With extra credit, lab can exceed base by **up to 5**.
+The calculator supports two section formats. On first visit you choose your section type, and the app remembers your choice.
 
-### Course totals and thresholds
-- Course base total (without extra credit): **400 (lecture) + 150 (lab) = 550**.
-- Extra credit can raise the numeric total above **550**. Thresholds do not change.
+### Separate Lecture & Lab (550 points)
+
+For sections where lecture and lab are graded independently and combined into a 550-point total.
+
+**Lecture (400 pts)**
+
+| Assessment | Max |
+|---|---|
+| Unit 1 Exam | 100 |
+| Unit 2 Exam | 100 |
+| Unit 3 Exam | 100 |
+| Final Exam | 100 |
+
+**Lab (150 pts)**
+
+| Assessment | Max |
+|---|---|
+| Lab Quizzes (10×) | 3 each, 30 total |
+| Skills Tests (5×) | 1 each, 5 total |
+| Midterm Exam | 50 |
+| Final Exam | 50 |
+| Pathogen Project | 15 |
 
 **Letter-grade thresholds**
-- **A:** **493+**
-- **B:** **438–492**
-- **C:** **383–437**
-- **D:** **355–382**
-- **F:** **0–354**
+
+| Grade | Points |
+|---|---|
+| A | 493+ |
+| B | 438–492 |
+| C | 383–437 |
+| D | 355–382 |
+| F | 0–354 |
+
+### Integrated Lecture/Lab (weighted percentages)
+
+For sections where lecture and lab are combined into a single weighted grade.
+
+| Assessment | Max Score | Weight |
+|---|---|---|
+| Unit 1 Exam | 100 | 24% |
+| Unit 2 Exam | 75 | 24% |
+| Unit 3 Exam | 75 | 24% |
+| Final Exam | 100 | 24% |
+| Skills Tests (5×) | 1 each | 1% |
+| Pathogen Project | 15 | 3% |
+
+Raw scores are converted to percentages before applying weights.
+
+**Letter-grade scale**
+
+| Grade | Percentage |
+|---|---|
+| A | 90–100% |
+| B | 80–89.9% |
+| C | 70–79.9% |
+| D | 65–69.9% |
+| F | below 65% |
+
+## Replacement policy (both modes)
+
+The **Final Exam score replaces the lowest Unit Exam score** if the replacement benefits the student's grade. In integrated mode, comparison is by percentage since exams have different point maximums.
+
+## Skills tests
+
+Both modes break skills tests into five individual assessments (0 or 1 each):
+
+1. Aseptic Technique
+2. Oil Immersion
+3. Slide Staining
+4. Bacterial Isolation
+5. Biochemical ID
 
 ## What the app displays
-- Which **lecture exam** was replaced by the final.
-- Which **lab quiz** was dropped.
-- Subtotals for lecture and lab, course total, current letter grade.
-- Points needed to reach **A/B/C/D**, shown to **two decimals** and **never negative**.
+
+- Which **unit exam** was replaced by the final (if applicable).
+- Subtotals and percentages for each grading category.
+- Current letter grade.
+- Points or percentage needed to reach the next threshold(s).
+- In integrated mode with partial scores entered: the average needed on remaining assessments for each letter grade.
 
 ## Use
-1. Visit https://calebhendren.github.io/micrograde/
-2. Enter your scores.
+
+1. Visit <https://calebhendren.github.io/micrograde/>
+2. Select your section type.
+3. Enter your scores.
 
 ## For instructors
 
 ### Fork and adapt
-- You may **fork** this repository and adapt point values, extra-credit caps, thresholds, or replacement/drop rules to fit your syllabus.
+
+- You may **fork** this repository and adapt point values, weights, thresholds, or replacement rules to fit your syllabus.
 - Update labels and help text to match your course policy.
 
 ### Publish as a GitHub Pages site
-- Repository → **Settings** → **Pages**.
-- **Build and deployment** → **Source**: *Deploy from a branch*.
-- **Branch**: `main`. **Folder**: `/` (root). Save.
-- Access at `https://<your-username>.github.io/<repo-name>/`.
+
+1. Repository → **Settings** → **Pages**.
+2. **Build and deployment** → **Source**: *Deploy from a branch*.
+3. **Branch**: `master`. **Folder**: `/` (root). Save.
+4. Access at `https://<your-username>.github.io/<repo-name>/`.
