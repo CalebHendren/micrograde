@@ -295,13 +295,13 @@
         <!-- INPUTS CARD -->
         <article class="card left" aria-labelledby="intInputTitle">
             <h2 id="intInputTitle">Assessments</h2>
-            <div class="hint">Enter exam and project scores as percentages (0–100). Skills tests are pass/fail (0 or 1).</div>
+            <div class="hint">Enter raw scores. Skills tests are pass/fail (0 or 1).</div>
 
             <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:var(--comment); margin:14px 0 4px; font-weight:600">Combined Lecture/Lab Exams <span style="font-weight:normal">(24% each)</span></div>
-            <div class="row"><label for="int-ex1">Unit 1 Exam</label><input id="int-ex1" type="number" min="0" max="100" step="any" inputmode="decimal"></div>
-            <div class="row"><label for="int-ex2">Unit 2 Exam</label><input id="int-ex2" type="number" min="0" max="100" step="any" inputmode="decimal"></div>
-            <div class="row"><label for="int-ex3">Unit 3 Exam</label><input id="int-ex3" type="number" min="0" max="100" step="any" inputmode="decimal"></div>
-            <div class="row"><label for="int-final">Final Exam</label><input id="int-final" type="number" min="0" max="100" step="any" inputmode="decimal"></div>
+            <div class="row"><label for="int-ex1">Unit 1 Exam (0–100)</label><input id="int-ex1" type="number" min="0" max="100" step="any" inputmode="decimal"></div>
+            <div class="row"><label for="int-ex2">Unit 2 Exam (0–75)</label><input id="int-ex2" type="number" min="0" max="75" step="any" inputmode="decimal"></div>
+            <div class="row"><label for="int-ex3">Unit 3 Exam (0–75)</label><input id="int-ex3" type="number" min="0" max="75" step="any" inputmode="decimal"></div>
+            <div class="row"><label for="int-final">Final Exam (0–100)</label><input id="int-final" type="number" min="0" max="100" step="any" inputmode="decimal"></div>
 
             <div class="box">
                 Replacement: <span class="mono" id="int-replaceMsg">—</span>
@@ -319,7 +319,7 @@
             </div>
 
             <div style="font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text); margin:14px 0 4px; font-weight:600">Pathogen Project <span style="font-weight:normal">(3%)</span></div>
-            <div class="row"><label for="int-pathogen">Score (%)</label><input id="int-pathogen" type="number" min="0" max="100" step="any" inputmode="decimal"></div>
+            <div class="row"><label for="int-pathogen">Score (0–15)</label><input id="int-pathogen" type="number" min="0" max="15" step="any" inputmode="decimal"></div>
 
             <div class="btns">
                 <button id="int-resetAll" type="button">Reset all</button>
@@ -492,7 +492,7 @@ document.getElementById('sep-resetAll').addEventListener('click',()=>{ sepClear(
 /* ================================================================
    INTEGRATED CALCULATOR (weighted %)
    ================================================================ */
-const INT_STORE = 'microGradeIntV1';
+const INT_STORE = 'microGradeIntV2';
 const INT_SKILL = Array.from({length:5},(_,i)=>'int-sk'+(i+1));
 const INT_ALL = ['int-ex1','int-ex2','int-ex3','int-final','int-pathogen',...INT_SKILL];
 
@@ -507,11 +507,18 @@ function intLoad(){
 }
 
 function intCompute(){
-    const unit1 = readInput('int-ex1');
-    const unit2 = readInput('int-ex2');
-    const unit3 = readInput('int-ex3');
-    const fin   = readInput('int-final');
-    const pathogen = readInput('int-pathogen');
+    const unit1raw = readInput('int-ex1');
+    const unit2raw = readInput('int-ex2');
+    const unit3raw = readInput('int-ex3');
+    const finraw   = readInput('int-final');
+    const pathraw  = readInput('int-pathogen');
+
+    // Convert raw scores to percentages
+    const unit1 = unit1raw !== null ? (unit1raw / 100) * 100 : null;
+    const unit2 = unit2raw !== null ? (unit2raw / 75) * 100 : null;
+    const unit3 = unit3raw !== null ? (unit3raw / 75) * 100 : null;
+    const fin   = finraw !== null ? (finraw / 100) * 100 : null;
+    const pathogen = pathraw !== null ? (pathraw / 15) * 100 : null;
 
     // Skills: each 0-1, total /5 → percentage
     let skillsEntered = 0, skillsSum = 0;
@@ -521,11 +528,11 @@ function intCompute(){
     }
     const skillsPct = skillsEntered > 0 ? (skillsSum / 5) * 100 : null;
 
-    // Replacement logic
+    // Replacement logic (compare percentages since exams have different max values)
     let examScores = [
-        { name:'Unit 1', score:unit1, replaced:false },
-        { name:'Unit 2', score:unit2, replaced:false },
-        { name:'Unit 3', score:unit3, replaced:false },
+        { name:'Unit 1', score:unit1, raw:unit1raw, max:100, replaced:false },
+        { name:'Unit 2', score:unit2, raw:unit2raw, max:75, replaced:false },
+        { name:'Unit 3', score:unit3, raw:unit3raw, max:75, replaced:false },
     ];
     let replaceMsg = '';
     const enteredExams = examScores.filter(e => e.score !== null);
@@ -538,16 +545,16 @@ function intCompute(){
             examScores = examScores.map(e =>
                 e.name === lowest.name ? { ...e, score: fin, replaced: true } : e
             );
-            replaceMsg = `Final (${fin}) replaces ${lowest.name} (${lowest.score}).`;
+            replaceMsg = `Final (${fin.toFixed(1)}%) replaces ${lowest.name} (${lowest.raw}/${lowest.max} = ${lowest.score.toFixed(1)}%).`;
         } else {
-            replaceMsg = 'No replacement. Final ≤ lowest Unit Exam.';
+            replaceMsg = 'No replacement. Final ≤ lowest Unit Exam (by %).';
         }
     } else {
         replaceMsg = 'Enter Final + at least one Unit Exam to evaluate.';
     }
     document.getElementById('int-replaceMsg').textContent = replaceMsg;
 
-    // Build weighted components
+    // Build weighted components (all scores are now percentages)
     const components = [
         { name: examScores[0].replaced ? 'Unit 1 (replaced)' : 'Unit 1 Exam', score: examScores[0].score, weight: 24 },
         { name: examScores[1].replaced ? 'Unit 2 (replaced)' : 'Unit 2 Exam', score: examScores[1].score, weight: 24 },
