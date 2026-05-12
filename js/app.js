@@ -2,11 +2,12 @@
 
 import { safeGet, safeSet, safeRemove } from './storage.js';
 import { applyTheme, getInitialTheme, buildThemePicker, rememberCurrent, toggleLightDark, modeOfTheme } from './themes.js';
-import { buildSeparate } from './separate.js';
+import { buildPointsCalc } from './pointsCalc.js';
 import { buildIntegrated } from './integrated.js';
 import { el } from './dom.js';
 
 const MODE_KEY = 'microGradeMode';
+const MODE_ORDER = ['separate', 'hybrid', 'integrated'];
 
 function getConfig() {
     const cfg = window.MICROGRADE_CONFIG;
@@ -81,22 +82,21 @@ function buildSelector(config, onChoose) {
     const screen = document.getElementById('selectorScreen');
     const buttons = [];
 
-    if (config.modes.separate.enabled) {
+    const buttonSpecs = [
+        { key: 'separate',   id: 'btnSeparate'   },
+        { key: 'hybrid',     id: 'btnHybrid'     },
+        { key: 'integrated', id: 'btnIntegrated' },
+    ];
+
+    for (const { key, id } of buttonSpecs) {
+        const m = config.modes[key];
+        if (!m || !m.enabled) continue;
         buttons.push(el('button', {
-            id: 'btnSeparate', class: 'secondary', type: 'button',
-            'aria-label': `Choose ${config.modes.separate.label}`,
+            id, class: 'secondary', type: 'button',
+            'aria-label': `Choose ${m.label}`,
         }, [
-            config.modes.separate.label,
-            el('span', { class: 'button-sub' }, config.modes.separate.sublabel || ''),
-        ]));
-    }
-    if (config.modes.integrated.enabled) {
-        buttons.push(el('button', {
-            id: 'btnIntegrated', class: 'secondary', type: 'button',
-            'aria-label': `Choose ${config.modes.integrated.label}`,
-        }, [
-            config.modes.integrated.label,
-            el('span', { class: 'button-sub' }, config.modes.integrated.sublabel || ''),
+            m.label,
+            el('span', { class: 'button-sub' }, m.sublabel || ''),
         ]));
     }
 
@@ -106,31 +106,39 @@ function buildSelector(config, onChoose) {
         el('div', { class: 'selector-btns' }, buttons),
     ]));
 
-    if (config.modes.separate.enabled) {
-        document.getElementById('btnSeparate').addEventListener('click', () => onChoose('separate'));
-    }
-    if (config.modes.integrated.enabled) {
-        document.getElementById('btnIntegrated').addEventListener('click', () => onChoose('integrated'));
+    for (const { key, id } of buttonSpecs) {
+        if (config.modes[key] && config.modes[key].enabled) {
+            const btn = document.getElementById(id);
+            if (btn) btn.addEventListener('click', () => onChoose(key));
+        }
     }
 }
 
 function showScreen(mode, config) {
-    const sel = document.getElementById('selectorScreen');
-    const sep = document.getElementById('separateCalc');
-    const intg = document.getElementById('integratedCalc');
-    const footerSep = document.getElementById('footerSep');
-    const footerInt = document.getElementById('footerInt');
+    const screens = {
+        selector:   document.getElementById('selectorScreen'),
+        separate:   document.getElementById('separateCalc'),
+        hybrid:     document.getElementById('hybridCalc'),
+        integrated: document.getElementById('integratedCalc'),
+    };
+    const footers = {
+        separate:   document.getElementById('footerSep'),
+        hybrid:     document.getElementById('footerHyb'),
+        integrated: document.getElementById('footerInt'),
+    };
 
-    sel.classList.toggle('hidden', mode !== null);
-    sep.classList.toggle('hidden', mode !== 'separate');
-    intg.classList.toggle('hidden', mode !== 'integrated');
-    footerSep.classList.toggle('hidden', mode !== 'separate');
-    footerInt.classList.toggle('hidden', mode !== 'integrated');
+    screens.selector.classList.toggle('hidden',   mode !== null);
+    screens.separate.classList.toggle('hidden',   mode !== 'separate');
+    screens.hybrid.classList.toggle('hidden',     mode !== 'hybrid');
+    screens.integrated.classList.toggle('hidden', mode !== 'integrated');
+
+    for (const m of MODE_ORDER) {
+        if (footers[m]) footers[m].classList.toggle('hidden', mode !== m);
+    }
 
     if (mode) safeSet(MODE_KEY, mode);
 
-    // Move focus to the new region for screen reader / keyboard users.
-    const target = mode === 'separate' ? sep : mode === 'integrated' ? intg : sel;
+    const target = mode === null ? screens.selector : screens[mode];
     if (target) {
         const heading = target.querySelector('h1, h2');
         if (heading) {
@@ -149,46 +157,64 @@ function init() {
     applyCourseInfo(config);
     installThemeControls(config);
 
-    setText('footerSep', config.separate.footerNote || '');
-    setText('footerInt', config.integrated.footerNote || '');
+    setText('footerSep', config.separate ? config.separate.footerNote || '' : '');
+    setText('footerHyb', config.hybrid   ? config.hybrid.footerNote   || '' : '');
+    setText('footerInt', config.integrated ? config.integrated.footerNote || '' : '');
 
-    let sepApp = null;
-    let intApp = null;
+    const apps = { separate: null, hybrid: null, integrated: null };
 
     function ensureSeparate() {
-        if (!sepApp && config.separate) {
-            sepApp = buildSeparate(document.getElementById('separateCalc'), config);
+        if (!apps.separate && config.separate) {
+            apps.separate = buildPointsCalc(
+                document.getElementById('separateCalc'), config.separate,
+                { prefix: 'sep-', modeLabel: config.modes.separate.label, backButtonId: 'backFromSeparate' }
+            );
             const back = document.getElementById('backFromSeparate');
             if (back) back.addEventListener('click', () => {
                 safeRemove(MODE_KEY);
                 showScreen(null, config);
             });
         }
-        return sepApp;
+        return apps.separate;
+    }
+
+    function ensureHybrid() {
+        if (!apps.hybrid && config.hybrid) {
+            apps.hybrid = buildPointsCalc(
+                document.getElementById('hybridCalc'), config.hybrid,
+                { prefix: 'hyb-', modeLabel: config.modes.hybrid.label, backButtonId: 'backFromHybrid' }
+            );
+            const back = document.getElementById('backFromHybrid');
+            if (back) back.addEventListener('click', () => {
+                safeRemove(MODE_KEY);
+                showScreen(null, config);
+            });
+        }
+        return apps.hybrid;
     }
 
     function ensureIntegrated() {
-        if (!intApp && config.integrated) {
-            intApp = buildIntegrated(document.getElementById('integratedCalc'), config);
+        if (!apps.integrated && config.integrated) {
+            apps.integrated = buildIntegrated(document.getElementById('integratedCalc'), config);
             const back = document.getElementById('backFromIntegrated');
             if (back) back.addEventListener('click', () => {
                 safeRemove(MODE_KEY);
                 showScreen(null, config);
             });
         }
-        return intApp;
+        return apps.integrated;
     }
 
     function chooseMode(mode) {
-        if (mode === 'separate' && config.modes.separate.enabled) ensureSeparate();
+        if (mode === 'separate'   && config.modes.separate.enabled)   ensureSeparate();
+        else if (mode === 'hybrid'     && config.modes.hybrid.enabled)     ensureHybrid();
         else if (mode === 'integrated' && config.modes.integrated.enabled) ensureIntegrated();
         showScreen(mode, config);
     }
 
     buildSelector(config, chooseMode);
 
-    // Auto-select if exactly one mode is enabled
-    const enabledModes = ['separate', 'integrated'].filter(m => config.modes[m].enabled);
+    const enabledModes = MODE_ORDER.filter(m => config.modes[m] && config.modes[m].enabled);
     if (enabledModes.length === 0) {
         document.getElementById('selectorScreen').textContent =
             'No calculator modes are enabled. Edit config.js to enable at least one.';
@@ -198,9 +224,8 @@ function init() {
     const saved = safeGet(MODE_KEY);
     if (enabledModes.length === 1) {
         chooseMode(enabledModes[0]);
-    } else if (saved === 'separate' || saved === 'integrated') {
-        if (config.modes[saved].enabled) chooseMode(saved);
-        else showScreen(null, config);
+    } else if (saved && enabledModes.includes(saved)) {
+        chooseMode(saved);
     } else {
         showScreen(null, config);
     }
