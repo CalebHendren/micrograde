@@ -1,0 +1,102 @@
+/* Base layout, typography, resets. Theme colors live in themes.css. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+html { color-scheme: light dark; }
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell,
+        "Noto Sans", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Accessible skip link — visible only on focus. */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 8px;
+    background: var(--accent);
+    color: var(--accent-text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 1000;
+}
+.skip-link:focus { top: 8px; }
+
+header[role="banner"] {
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--bg-soft), var(--bg) 70%);
+}
+
+.header-inner {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.header-text { flex: 1 1 auto; min-width: 0; }
+
+h1 {
+    margin: 0 0 6px;
+    font-size: clamp(20px, 3.2vw, 28px);
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.sub { color: var(--muted); font-size: 14px; }
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+.grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(12, 1fr);
+    align-items: start;
+}
+
+main { display: block; }
+
+.footer {
+    padding: 14px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+a { color: var(--link); }
+a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0);
+    white-space: nowrap; border: 0;
+}
+
+.hidden { display: none !important; }
+
+.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}
