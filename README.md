@@ -100,6 +100,36 @@ Both modes break skills tests into five individual assessments (0 or 1 each):
 - Points or percentage needed to reach the next threshold(s).
 - In integrated mode with partial scores entered: the average needed on remaining assessments for each letter grade.
 
+## Themes (light & dark)
+
+The calculator ships with three light themes and three dark themes. A theme picker and a one-click light/dark toggle live in the header. The first-visit theme follows the visitor's operating-system `prefers-color-scheme`; afterwards the choice is remembered per browser.
+
+| Mode | Theme |
+|---|---|
+| Light | Light (default) |
+| Light | Sepia |
+| Light | High Contrast (Light) — WCAG AAA |
+| Dark | Dracula |
+| Dark | Nord |
+| Dark | High Contrast (Dark) — WCAG AAA |
+
+Instructors can change the default theme — or disable the toggle entirely — in `config.js` (`ui.defaultTheme`, `ui.allowThemeToggle`).
+
+## Accessibility
+
+The interface targets WCAG 2.1 AA and supports common university accessibility requirements:
+
+- Semantic landmarks (`header`, `main`, `footer`) and a visible-on-focus **skip-to-content** link.
+- Every input has a programmatically associated `<label>`. Inputs without visible labels use `aria-label`.
+- Live regions (`aria-live="polite"`) announce updated totals, replacement messages, and the letter grade.
+- Keyboard navigation throughout; visible `:focus-visible` outlines that remain visible in all themes.
+- The two **High Contrast** themes meet WCAG AAA (7:1) on body text and respect the OS forced-colors mode (`@media (forced-colors: active)`).
+- Color is never the sole indicator of meaning — the letter grade is always present as text.
+- Respects `prefers-reduced-motion` and `prefers-color-scheme`.
+- Number inputs use `inputmode="decimal"` for soft-keyboard support and have `min`/`max` attributes for assistive validation.
+
+If you discover an accessibility issue, please open an issue on GitHub.
+
 ## Use
 
 1. Visit <https://calebhendren.github.io/micrograde/>
@@ -108,10 +138,34 @@ Both modes break skills tests into five individual assessments (0 or 1 each):
 
 ## For instructors
 
+### Customize via `config.js`
+
+All course-specific values — assessments, point maxima, weights, letter-grade thresholds, the replacement policy, mode labels, the GitHub link, and the default theme — live in a single file, **`config.js`** at the repository root. No build step, no JavaScript bundler, no framework. Edit, save, push.
+
+Examples:
+
+```js
+// Change letter-grade thresholds for the 550-point mode
+window.MICROGRADE_CONFIG.separate.thresholds = { A: 500, B: 445, C: 390, D: 360 };
+
+// Disable the "integrated" mode entirely
+window.MICROGRADE_CONFIG.modes.integrated.enabled = false;
+
+// Force a specific default theme and hide the picker
+window.MICROGRADE_CONFIG.ui.defaultTheme = 'light-contrast';
+window.MICROGRADE_CONFIG.ui.allowThemeToggle = false;
+
+// Rename or re-weight an exam
+window.MICROGRADE_CONFIG.integrated.exams[1].max = 100;
+window.MICROGRADE_CONFIG.integrated.exams[1].weight = 20;
+```
+
+The header of `config.js` documents every supported field.
+
 ### Fork and adapt
 
-- You may **fork** this repository and adapt point values, weights, thresholds, or replacement rules to fit your syllabus.
-- Update labels and help text to match your course policy.
+- **Fork** this repository and edit `config.js` for your syllabus.
+- For deeper changes (new assessment types, custom replacement rules), edit the relevant module in `js/`.
 
 ### Publish as a GitHub Pages site
 
@@ -119,3 +173,25 @@ Both modes break skills tests into five individual assessments (0 or 1 each):
 2. **Build and deployment** → **Source**: *Deploy from a branch*.
 3. **Branch**: `master`. **Folder**: `/` (root). Save.
 4. Access at `https://<your-username>.github.io/<repo-name>/`.
+
+No build step is required — the project is plain HTML, CSS, and ES modules, all served directly by GitHub Pages.
+
+## Project layout
+
+```
+.
+├── index.html         # Minimal HTML shell — landmarks and mount points
+├── config.js          # Instructor-editable configuration
+├── css/
+│   ├── base.css       # Resets, layout, typography
+│   ├── components.css # Cards, forms, buttons, pills, theme picker
+│   └── themes.css     # 6 themes via CSS custom properties
+├── js/
+│   ├── app.js         # Entry point — boots the app
+│   ├── themes.js      # Theme registry, picker, light/dark toggle
+│   ├── separate.js    # 550-point separate-mode calculator
+│   ├── integrated.js  # Weighted-percent integrated-mode calculator
+│   ├── dom.js         # DOM helpers (element builder, number parsing)
+│   └── storage.js     # localStorage helpers with safe failure
+└── README.md
+```

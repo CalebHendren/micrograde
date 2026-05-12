@@ -1,0 +1,144 @@
+/* =============================================================================
+ * Themes
+ *
+ * Each theme is a set of CSS custom properties applied via
+ *   <html data-theme="<theme-id>">
+ *
+ * Required variables:
+ *   --bg, --bg-soft, --card, --line, --shadow
+ *   --text, --muted
+ *   --accent, --accent-text, --link
+ *   --input-bg, --focus-ring
+ *   --ok, --good, --warn, --bad
+ *
+ * Color contrast targets:
+ *   - Body text and labels meet WCAG 2.1 AA (4.5:1) at minimum.
+ *   - "high contrast" themes target WCAG AAA (7:1) on body text.
+ * ============================================================================= */
+
+/* ------------------------------ LIGHT THEMES ------------------------------ */
+
+[data-theme="light-default"] {
+    --bg:          #f7f8fb;
+    --bg-soft:     #ffffff;
+    --card:        #ffffff;
+    --line:        #d6dae3;
+    --shadow:      rgba(15, 23, 42, 0.08);
+    --text:        #11151c;
+    --muted:       #4a5468;
+    --accent:      #2a4ed1;
+    --accent-text: #ffffff;
+    --link:        #1f3fb0;
+    --input-bg:    #ffffff;
+    --focus-ring:  rgba(42, 78, 209, 0.35);
+    --ok:          #117a3d;
+    --good:        #1d4ed8;
+    --warn:        #a35a00;
+    --bad:         #b3261e;
+}
+
+[data-theme="sepia"] {
+    --bg:          #f5ecd9;
+    --bg-soft:     #faf3e2;
+    --card:        #fdf7e7;
+    --line:        #d6c8a6;
+    --shadow:      rgba(86, 64, 21, 0.12);
+    --text:        #2b1f08;
+    --muted:       #5d4a25;
+    --accent:      #8a4b16;
+    --accent-text: #fdf7e7;
+    --link:        #7a3f10;
+    --input-bg:    #fdf7e7;
+    --focus-ring:  rgba(138, 75, 22, 0.35);
+    --ok:          #356b1f;
+    --good:        #1a4d8a;
+    --warn:        #8a4b16;
+    --bad:         #a02416;
+}
+
+[data-theme="light-contrast"] {
+    --bg:          #ffffff;
+    --bg-soft:     #ffffff;
+    --card:        #ffffff;
+    --line:        #000000;
+    --shadow:      rgba(0, 0, 0, 0.15);
+    --text:        #000000;
+    --muted:       #1a1a1a;
+    --accent:      #00307a;
+    --accent-text: #ffffff;
+    --link:        #00307a;
+    --input-bg:    #ffffff;
+    --focus-ring:  rgba(0, 48, 122, 0.6);
+    --ok:          #005f1e;
+    --good:        #00307a;
+    --warn:        #6b3a00;
+    --bad:         #8a0000;
+}
+
+/* ------------------------------- DARK THEMES ------------------------------ */
+
+[data-theme="dracula"] {
+    --bg:          #282a36;
+    --bg-soft:     #2f3242;
+    --card:        #1f202b;
+    --line:        #44475a;
+    --shadow:      rgba(0, 0, 0, 0.45);
+    --text:        #f8f8f2;
+    --muted:       #c4c4d8;
+    --accent:      #bd93f9;
+    --accent-text: #1f202b;
+    --link:        #8be9fd;
+    --input-bg:    #2f3242;
+    --focus-ring:  rgba(139, 233, 253, 0.55);
+    --ok:          #50fa7b;
+    --good:        #8be9fd;
+    --warn:        #ffb86c;
+    --bad:         #ff6e6e;
+}
+
+[data-theme="nord"] {
+    --bg:          #2e3440;
+    --bg-soft:     #3b4252;
+    --card:        #292e39;
+    --line:        #4c566a;
+    --shadow:      rgba(0, 0, 0, 0.45);
+    --text:        #eceff4;
+    --muted:       #c6cdd9;
+    --accent:      #88c0d0;
+    --accent-text: #2e3440;
+    --link:        #8fbcbb;
+    --input-bg:    #3b4252;
+    --focus-ring:  rgba(136, 192, 208, 0.55);
+    --ok:          #a3be8c;
+    --good:        #88c0d0;
+    --warn:        #ebcb8b;
+    --bad:         #d08296;
+}
+
+[data-theme="dark-contrast"] {
+    --bg:          #000000;
+    --bg-soft:     #0a0a0a;
+    --card:        #000000;
+    --line:        #ffffff;
+    --shadow:      rgba(0, 0, 0, 0.6);
+    --text:        #ffffff;
+    --muted:       #e6e6e6;
+    --accent:      #ffd400;
+    --accent-text: #000000;
+    --link:        #ffd400;
+    --input-bg:    #000000;
+    --focus-ring:  rgba(255, 212, 0, 0.7);
+    --ok:          #5eff7c;
+    --good:        #7fdfff;
+    --warn:        #ffd400;
+    --bad:         #ff7a7a;
+}
+
+/* Forced-colors mode (Windows High Contrast) — let the OS decide. */
+@media (forced-colors: active) {
+    :root {
+        --line: CanvasText;
+        --focus-ring: Highlight;
+    }
+    button { border: 1px solid ButtonText; }
+}
