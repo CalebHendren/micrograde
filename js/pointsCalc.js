@@ -14,11 +14,17 @@ export function buildPointsCalc(root, cfg, opts) {
     const id = s => prefix + s;
 
     const componentIds = cfg.lecture.components.map(c => id(c.id));
+    const hasLecQuizzes = !!cfg.lecture.quizzes;
+    const lecQuizIds = hasLecQuizzes
+        ? Array.from({ length: cfg.lecture.quizzes.count }, (_, i) => id('lq' + (i + 1)))
+        : [];
+    const lectureAllIds = [...lecQuizIds, ...componentIds];
+
     const quizIds  = Array.from({ length: cfg.lab.quizzes.count }, (_, i) => id('q' + (i + 1)));
     const skillIds = cfg.lab.skills.map((_, i) => id('sk' + (i + 1)));
     const otherIds = cfg.lab.otherAssessments.map(a => id(a.id));
     const labIds = [...quizIds, ...skillIds, ...otherIds];
-    const allIds = [...componentIds, ...labIds];
+    const allIds = [...lectureAllIds, ...labIds];
 
     const hasReplacement = !!cfg.lecture.replacement;
 
@@ -35,6 +41,28 @@ export function buildPointsCalc(root, cfg, opts) {
         labeledRow({ id: id(c.id), label: c.label, max: c.max })
     );
 
+    const lecQuizGroup = hasLecQuizzes ? el('div', {
+        class: 'box', role: 'group', 'aria-label': cfg.lecture.quizzes.groupLabel,
+    }, [
+        el('strong', {},
+            `${cfg.lecture.quizzes.groupLabel} (${cfg.lecture.quizzes.count}×, 0–${cfg.lecture.quizzes.max} each)`
+        ),
+        el('div', { class: 'grid quiz-grid', style: 'margin-top:8px' },
+            lecQuizIds.map((qid, i) => numberInput({
+                id: qid, min: 0, max: cfg.lecture.quizzes.max,
+                ariaLabel: `${cfg.lecture.quizzes.ariaPrefix} ${i + 1}`,
+            }))
+        ),
+    ]) : null;
+
+    const lecTotalsRow = hasLecQuizzes ? el('div', { class: 'totals' }, [
+        el('div', { class: 'pill' }, [
+            `${cfg.lecture.quizzes.groupLabel}: `,
+            el('span', { id: id('lecQuizTotal') }, '0'),
+            ` / ${cfg.lecture.quizzes.count * cfg.lecture.quizzes.max}`,
+        ]),
+    ]) : null;
+
     const lectureCard = el('article', {
         class: 'card left', 'aria-labelledby': `${prefix}lecTitle`,
     }, [
@@ -43,6 +71,7 @@ export function buildPointsCalc(root, cfg, opts) {
             el('span', { class: 'card-subtitle' }, `(${cfg.lecture.maxPoints} pts)`),
         ]),
         cfg.lecture.hint ? el('p', { class: 'hint' }, cfg.lecture.hint) : null,
+        lecQuizGroup,
         ...lectureRows,
         hasReplacement
             ? el('div', { class: 'box' }, [
@@ -50,6 +79,7 @@ export function buildPointsCalc(root, cfg, opts) {
                 el('span', { class: 'mono', id: id('lecReplaceMsg'), 'aria-live': 'polite' }, '—'),
             ])
             : null,
+        lecTotalsRow,
         el('div', { class: 'running-total', role: 'status', 'aria-live': 'polite' }, [
             cfg.lecture.title + ': ',
             el('span', { id: id('lecRunning') }, '0'),
@@ -180,9 +210,18 @@ export function buildPointsCalc(root, cfg, opts) {
     }
 
     function compute() {
+        // Lecture quizzes (optional)
+        let lecQuizSum = 0;
+        if (hasLecQuizzes) {
+            for (let i = 1; i <= cfg.lecture.quizzes.count; i++) {
+                lecQuizSum += valNum(id('lq' + i), 0, cfg.lecture.quizzes.max);
+            }
+            document.getElementById(id('lecQuizTotal')).textContent = r2(lecQuizSum);
+        }
+
         // Lecture components
         const componentVals = cfg.lecture.components.map(c => valNum(id(c.id), 0, c.max));
-        let lecTotal = componentVals.reduce((a, b) => a + b, 0);
+        let lecTotal = componentVals.reduce((a, b) => a + b, 0) + lecQuizSum;
 
         if (hasReplacement) {
             const rep = cfg.lecture.replacement;
@@ -274,7 +313,7 @@ export function buildPointsCalc(root, cfg, opts) {
     });
 
     function clearIds(ids) { ids.forEach(i => { document.getElementById(i).value = ''; }); }
-    document.getElementById(id('resetLecture')).addEventListener('click', () => { clearIds(componentIds); compute(); });
+    document.getElementById(id('resetLecture')).addEventListener('click', () => { clearIds(lectureAllIds); compute(); });
     document.getElementById(id('resetLab')).addEventListener('click', () => { clearIds(labIds); compute(); });
     document.getElementById(id('resetAll')).addEventListener('click', () => {
         clearIds(allIds);

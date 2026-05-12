@@ -18,6 +18,7 @@
  *   thresholds   : { A, B, C, D } cut-off points for each letter grade.
  *   lecture      : {
  *     title, maxPoints, hint?,
+ *     quizzes?: { count, max, groupLabel, ariaPrefix },  // optional quiz grid
  *     components: [{ id, label, max }, ...],
  *     replacement: null | {
  *       sourceId: '<component id>',      // e.g. the final exam
@@ -123,17 +124,22 @@ window.MICROGRADE_CONFIG = {
     /* Hybrid: Online Lecture + On-Ground Lab.
      * Based on the BIOL 2230 Hybrid syllabus. No replacement policy. */
     hybrid: {
-        storageKey: 'microGradeHybV1',
+        storageKey: 'microGradeHybV2',
         totalPoints: 550,
 
         lecture: {
             title: 'Online Lecture',
             maxPoints: 400,
-            hint: 'Enter your cumulative online-quiz total (out of 100). Midterm and Final are proctored on campus.',
+            hint: 'Enter each online quiz individually (0–10 each). Midterm and Final are proctored on campus.',
+            quizzes: {
+                count: 10,
+                max: 10,
+                groupLabel: 'Online Quizzes',
+                ariaPrefix: 'Online Quiz',
+            },
             components: [
-                { id: 'quizzes', label: 'Online Quizzes (cumulative)', max: 100 },
-                { id: 'lecMid',  label: 'Midterm Exam (proctored)',    max: 150 },
-                { id: 'lecFin',  label: 'Final Exam (proctored)',      max: 150 },
+                { id: 'lecMid', label: 'Midterm Exam (proctored)', max: 150 },
+                { id: 'lecFin', label: 'Final Exam (proctored)',   max: 150 },
             ],
             replacement: null,
         },

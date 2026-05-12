@@ -61,7 +61,7 @@ For BIOL 2230 hybrid sections — online lecture (proctored on-campus exams) wit
 
 | Assessment | Max |
 |---|---|
-| Online Quizzes (cumulative) | 100 |
+| Online Quizzes (10×) | 10 each, 100 total |
 | Midterm Exam (proctored) | 150 |
 | Final Exam (proctored) | 150 |
 
