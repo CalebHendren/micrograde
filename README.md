@@ -18,7 +18,7 @@
 
 ## Section types
 
-The calculator supports two section formats. On first visit you choose your section type, and the app remembers your choice.
+The calculator supports three section formats. On first visit you choose your section type, and the app remembers your choice.
 
 ### Separate Lecture & Lab (550 points)
 
@@ -53,6 +53,40 @@ For sections where lecture and lab are graded independently and combined into a 
 | D | 355–382 |
 | F | 0–354 |
 
+### Hybrid: Online Lecture + On-Ground Lab (550 points)
+
+For BIOL 2230 hybrid sections — online lecture (proctored on-campus exams) with an on-ground lab. Based on the published BIOL 2230 hybrid syllabus.
+
+**Online Lecture (400 pts)**
+
+| Assessment | Max |
+|---|---|
+| Online Quizzes (cumulative) | 100 |
+| Midterm Exam (proctored) | 150 |
+| Final Exam (proctored) | 150 |
+
+**On-Ground Lab (150 pts)**
+
+| Assessment | Max |
+|---|---|
+| Lab Quizzes (10×) | 3 each, 30 total |
+| Skills Tests (5×) | 1 each, 5 total |
+| Practical Midterm Exam | 50 |
+| Practical Final Exam | 50 |
+| Pathogen Project | 15 |
+
+**Letter-grade thresholds** (same as Separate mode)
+
+| Grade | Points |
+|---|---|
+| A | 493+ |
+| B | 438–492 |
+| C | 383–437 |
+| D | 355–382 |
+| F | 0–354 |
+
+The hybrid syllabus does **not** include a replacement policy; the calculator reflects this.
+
 ### Integrated Lecture/Lab (weighted percentages)
 
 For sections where lecture and lab are combined into a single weighted grade.
@@ -78,13 +112,13 @@ Raw scores are converted to percentages before applying weights.
 | D | 65–69.9% |
 | F | below 65% |
 
-## Replacement policy (both modes)
+## Replacement policy
 
-The **Final Exam score replaces the lowest Unit Exam score** if the replacement benefits the student's grade. In integrated mode, comparison is by percentage since exams have different point maximums.
+In **Separate** and **Integrated** modes, the **Final Exam score replaces the lowest Unit Exam score** if the replacement benefits the student's grade. In integrated mode, comparison is by percentage since exams have different point maximums. **Hybrid mode does not use a replacement policy** (the hybrid syllabus does not specify one).
 
 ## Skills tests
 
-Both modes break skills tests into five individual assessments (0 or 1 each):
+All three modes break skills tests into five individual assessments (0 or 1 each):
 
 1. Aseptic Technique
 2. Oil Immersion
@@ -145,22 +179,28 @@ All course-specific values — assessments, point maxima, weights, letter-grade 
 Examples:
 
 ```js
-// Change letter-grade thresholds for the 550-point mode
+// Change letter-grade thresholds for the 550-point modes
 window.MICROGRADE_CONFIG.separate.thresholds = { A: 500, B: 445, C: 390, D: 360 };
 
-// Disable the "integrated" mode entirely
+// Disable a mode entirely
 window.MICROGRADE_CONFIG.modes.integrated.enabled = false;
 
 // Force a specific default theme and hide the picker
 window.MICROGRADE_CONFIG.ui.defaultTheme = 'light-contrast';
 window.MICROGRADE_CONFIG.ui.allowThemeToggle = false;
 
+// Add a "replacement policy" to a points-based mode (Separate / Hybrid)
+window.MICROGRADE_CONFIG.hybrid.lecture.replacement = {
+    sourceId: 'lecFin',
+    replaceableIds: ['lecMid'],
+};
+
 // Rename or re-weight an exam
 window.MICROGRADE_CONFIG.integrated.exams[1].max = 100;
 window.MICROGRADE_CONFIG.integrated.exams[1].weight = 20;
 ```
 
-The header of `config.js` documents every supported field.
+**Separate** and **Hybrid** share the same points-based schema (`storageKey`, `totalPoints`, `thresholds`, `lecture.components`, `lecture.replacement`, `lab`), so you can copy one and edit it to add additional course variants. The header of `config.js` documents every supported field.
 
 ### Fork and adapt
 
@@ -189,7 +229,7 @@ No build step is required — the project is plain HTML, CSS, and ES modules, al
 ├── js/
 │   ├── app.js         # Entry point — boots the app
 │   ├── themes.js      # Theme registry, picker, light/dark toggle
-│   ├── separate.js    # 550-point separate-mode calculator
+│   ├── pointsCalc.js  # Generic points calculator (Separate + Hybrid modes)
 │   ├── integrated.js  # Weighted-percent integrated-mode calculator
 │   ├── dom.js         # DOM helpers (element builder, number parsing)
 │   └── storage.js     # localStorage helpers with safe failure
