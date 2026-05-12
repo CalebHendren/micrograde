@@ -130,7 +130,7 @@ window.MICROGRADE_CONFIG = {
         lecture: {
             title: 'Online Lecture',
             maxPoints: 400,
-            hint: 'Enter each online quiz individually (0–10 each). Midterm and Final are proctored on campus.',
+            hint: 'Enter each online quiz individually (0–10 each).',
             quizzes: {
                 count: 10,
                 max: 10,
