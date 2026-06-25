@@ -204,7 +204,7 @@ export function buildPointsCalc(root, cfg, opts) {
         type: 'button',
         class: 'debug-fill-btn',
         'aria-label': 'Debugging Button Please Ignore',
-    }, '');
+    }, 'Fill');
 
     debugFillBtn.addEventListener('click', () => {
         const randInt = max => Math.floor(Math.random() * (max + 1));

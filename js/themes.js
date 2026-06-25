@@ -4,7 +4,7 @@ import { safeGet, safeSet } from './storage.js';
 
 const STORAGE_KEY = 'microGradeTheme';
 
-export const THEMES = [
+const THEMES = [
     { id: 'light-default',  label: 'Light',                  mode: 'light' },
     { id: 'sepia',          label: 'Sepia',                  mode: 'light' },
     { id: 'light-contrast', label: 'High Contrast (Light)',  mode: 'light' },

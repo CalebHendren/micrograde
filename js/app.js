@@ -62,12 +62,20 @@ function installThemeControls(config) {
         'aria-label': 'Toggle light or dark mode',
     }, modeOfTheme(current) === 'dark' ? 'Light mode' : 'Dark mode');
 
+    let toggleClickTimes = [];
     toggle.addEventListener('click', () => {
         const cur = document.documentElement.getAttribute('data-theme');
         const next = toggleLightDark(cur);
         applyTheme(next);
         picker.value = next;
         updateToggleLabel();
+
+        const now = Date.now();
+        toggleClickTimes.push(now);
+        toggleClickTimes = toggleClickTimes.filter(t => now - t <= 10000);
+        if (toggleClickTimes.length >= 10) {
+            document.documentElement.setAttribute('data-debug-mode', 'on');
+        }
     });
 
     function updateToggleLabel() {
