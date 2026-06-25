@@ -292,3 +292,21 @@ button.secondary:hover { border-color: var(--accent); }
     font-size: 13px;
     color: var(--text);
 }
+
+.debug-fill-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    color: transparent;
+    border: none;
+    padding: 0;
+    cursor: default;
+    z-index: 10;
+}
+.debug-fill-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+}

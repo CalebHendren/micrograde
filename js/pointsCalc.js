@@ -178,14 +178,14 @@ export function buildPointsCalc(root, cfg, opts) {
                 el('span', { id: id('letter'), class: 'good' }, 'F'),
             ]),
         ]),
-        el('div', { class: 'box' }, [
+        el('div', { id: id('targetsBox'), class: 'box' }, [
             el('div', { style: 'margin-bottom:6px' }, el('strong', {}, 'Points needed for next thresholds')),
             el('div', {
                 id: id('targets'), class: 'mono',
                 'aria-live': 'polite',
             }, '—'),
         ]),
-        el('div', { class: 'box' }, [
+        el('div', { id: id('currentScoreBox'), class: 'box' }, [
             el('div', { style: 'margin-bottom:6px' }, el('strong', {}, 'Current Score (entered assessments only)')),
             el('div', {
                 id: id('currentScore'), class: 'mono',
@@ -200,8 +200,37 @@ export function buildPointsCalc(root, cfg, opts) {
         ]),
     ]);
 
+    const debugFillBtn = el('button', {
+        type: 'button',
+        class: 'debug-fill-btn',
+        'aria-label': 'Debugging Button Please Ignore',
+    }, '');
+
+    debugFillBtn.addEventListener('click', () => {
+        const randInt = max => Math.floor(Math.random() * (max + 1));
+        if (hasLecQuizzes) {
+            for (let i = 1; i <= cfg.lecture.quizzes.count; i++) {
+                document.getElementById(id('lq' + i)).value = randInt(cfg.lecture.quizzes.max);
+            }
+        }
+        for (const c of cfg.lecture.components) {
+            document.getElementById(id(c.id)).value = randInt(c.max);
+        }
+        for (let i = 1; i <= cfg.lab.quizzes.count; i++) {
+            document.getElementById(id('q' + i)).value = randInt(cfg.lab.quizzes.max);
+        }
+        for (let i = 1; i <= cfg.lab.skills.length; i++) {
+            document.getElementById(id('sk' + i)).value = randInt(1);
+        }
+        for (const a of cfg.lab.otherAssessments) {
+            document.getElementById(id(a.id)).value = randInt(a.max);
+        }
+        compute();
+    });
+
     const section = el('section', { class: 'grid' }, [lectureCard, labCard, overallCard]);
-    root.replaceChildren(toolbar, section);
+    root.style.position = 'relative';
+    root.replaceChildren(debugFillBtn, toolbar, section);
 
     // Compute -----------------------------------------------------------------
     function save() {
@@ -395,6 +424,10 @@ export function buildPointsCalc(root, cfg, opts) {
         } else {
             currentNode.textContent = 'Enter at least one score to see your current average.';
         }
+
+        const allFilled = allIds.every(isEntered);
+        document.getElementById(id('targetsBox')).classList.toggle('hidden', allFilled);
+        document.getElementById(id('currentScoreBox')).classList.toggle('hidden', allFilled);
 
         save();
     }
