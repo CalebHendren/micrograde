@@ -101,6 +101,18 @@ export function buildIntegrated(root, config) {
                 'aria-live': 'polite',
             }, '—'),
         ]),
+        el('div', { class: 'box' }, [
+            el('div', { style: 'margin-bottom:6px' }, el('strong', {}, 'Current Score (entered assessments only)')),
+            el('div', {
+                id: id('currentScore'),
+                class: 'mono',
+                style: 'font-size:13px',
+                'aria-live': 'polite',
+            }, '—'),
+            el('p', { class: 'hint', style: 'margin-top:6px' },
+                'This is just your current score based on the grades you have entered so far — not your final score. It may be misleading: assessments you have not entered yet are not counted toward this average. Your final letter grade depends on every remaining assessment.'
+            ),
+        ]),
         el('div', { class: 'box', style: 'font-size:13px; color:var(--muted)' }, [
             el('strong', { style: 'color:var(--text)' }, 'Grade scale'),
             el('br', {}),
@@ -252,6 +264,21 @@ export function buildIntegrated(root, config) {
             targetText = 'Enter scores to see projections.';
         }
         document.getElementById(id('targets')).textContent = targetText;
+
+        // Current Score (based only on the weight that has been entered)
+        const currentNode = document.getElementById(id('currentScore'));
+        if (totalWeightEntered > 0) {
+            const curPct = coursePct;
+            const curLetter =
+                curPct >= T.A ? 'A' :
+                curPct >= T.B ? 'B' :
+                curPct >= T.C ? 'C' :
+                curPct >= T.D ? 'D' : 'F';
+            currentNode.textContent =
+                `${curPct.toFixed(2)}% (across ${totalWeightEntered}% of course weight entered) — at this rate: ${curLetter}`;
+        } else {
+            currentNode.textContent = 'Enter at least one score to see your current average.';
+        }
 
         save();
     }

@@ -185,6 +185,16 @@ export function buildPointsCalc(root, cfg, opts) {
                 'aria-live': 'polite',
             }, '—'),
         ]),
+        el('div', { class: 'box' }, [
+            el('div', { style: 'margin-bottom:6px' }, el('strong', {}, 'Current Score (entered assessments only)')),
+            el('div', {
+                id: id('currentScore'), class: 'mono',
+                'aria-live': 'polite',
+            }, '—'),
+            el('p', { class: 'hint', style: 'margin-top:6px' },
+                'This is just your current score based on the grades you have entered so far — not your final score. It may be misleading: assessments you have not entered yet are excluded here, while the Course total above counts unentered work as zero. Your final letter grade depends on every remaining assessment.'
+            ),
+        ]),
         el('div', { class: 'btns' }, [
             el('button', { id: id('resetAll'), type: 'button' }, 'Reset all'),
         ]),
@@ -303,6 +313,88 @@ export function buildPointsCalc(root, cfg, opts) {
         else if (letter === 'D') lines = `You have a D. Points to C: ${fmt(T.C - course)}, to B: ${fmt(T.B - course)}, to A: ${fmt(T.A - course)}.`;
         else                     lines = `You have an F. Points to D: ${fmt(T.D - course)}, to C: ${fmt(T.C - course)}, to B: ${fmt(T.B - course)}, to A: ${fmt(T.A - course)}.`;
         document.getElementById(id('targets')).textContent = lines;
+
+        // Current Score (based only on assessments the user has actually entered)
+        const isEntered = elemId => {
+            const node = document.getElementById(elemId);
+            return !!node && node.value.trim() !== '';
+        };
+
+        let curEarned = 0;
+        let curMax = 0;
+
+        if (hasLecQuizzes) {
+            for (let i = 1; i <= cfg.lecture.quizzes.count; i++) {
+                if (isEntered(id('lq' + i))) {
+                    curEarned += valNum(id('lq' + i), 0, cfg.lecture.quizzes.max);
+                    curMax += cfg.lecture.quizzes.max;
+                }
+            }
+        }
+
+        const enteredLecComps = cfg.lecture.components
+            .map((c, i) => ({ c, i, val: componentVals[i], entered: isEntered(id(c.id)) }))
+            .filter(x => x.entered);
+
+        let lecCurEarned = enteredLecComps.reduce((s, x) => s + x.val, 0);
+        let lecCurMax = enteredLecComps.reduce((s, x) => s + x.c.max, 0);
+
+        if (hasReplacement && enteredLecComps.length > 0) {
+            const rep = cfg.lecture.replacement;
+            const sourceEntry = enteredLecComps.find(x => x.c.id === rep.sourceId);
+            const replaceableEntries = enteredLecComps.filter(x => rep.replaceableIds.includes(x.c.id));
+            if (sourceEntry && replaceableEntries.length > 0) {
+                let lowest = replaceableEntries[0];
+                for (const e of replaceableEntries) {
+                    if (e.val < lowest.val) lowest = e;
+                }
+                if (sourceEntry.val > lowest.val) {
+                    lecCurEarned = lecCurEarned - lowest.val + sourceEntry.val;
+                }
+            }
+        }
+
+        curEarned += lecCurEarned;
+        curMax += lecCurMax;
+
+        for (let i = 1; i <= cfg.lab.quizzes.count; i++) {
+            if (isEntered(id('q' + i))) {
+                curEarned += valNum(id('q' + i), 0, cfg.lab.quizzes.max);
+                curMax += cfg.lab.quizzes.max;
+            }
+        }
+
+        for (let i = 1; i <= cfg.lab.skills.length; i++) {
+            if (isEntered(id('sk' + i))) {
+                curEarned += valNum(id('sk' + i), 0, 1);
+                curMax += 1;
+            }
+        }
+
+        cfg.lab.otherAssessments.forEach((a, i) => {
+            if (isEntered(id(a.id))) {
+                curEarned += otherVals[i];
+                curMax += a.max;
+            }
+        });
+
+        const currentNode = document.getElementById(id('currentScore'));
+        if (curMax > 0) {
+            const curPct = (curEarned / curMax) * 100;
+            const aPct = (T.A / cfg.totalPoints) * 100;
+            const bPct = (T.B / cfg.totalPoints) * 100;
+            const cPct = (T.C / cfg.totalPoints) * 100;
+            const dPct = (T.D / cfg.totalPoints) * 100;
+            const curLetter =
+                curPct >= aPct ? 'A' :
+                curPct >= bPct ? 'B' :
+                curPct >= cPct ? 'C' :
+                curPct >= dPct ? 'D' : 'F';
+            currentNode.textContent =
+                `${r2(curEarned)} / ${curMax} points (${curPct.toFixed(2)}%) — at this rate: ${curLetter}`;
+        } else {
+            currentNode.textContent = 'Enter at least one score to see your current average.';
+        }
 
         save();
     }
