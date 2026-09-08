@@ -200,6 +200,15 @@ button.secondary:hover { border-color: var(--accent); }
     flex-wrap: wrap;
 }
 
+/* Weight annotation on section headings and breakdown rows. */
+.weight-note {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
 .section-heading {
     font-size: 12px;
     text-transform: uppercase;
@@ -207,6 +216,13 @@ button.secondary:hover { border-color: var(--accent); }
     color: var(--muted);
     margin: 14px 0 4px;
     font-weight: 600;
+}
+
+/* Extra-credit items are short; lay them out in columns when there is room. */
+.ec-rows {
+    display: grid;
+    gap: 0 24px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .running-total {
@@ -218,6 +234,11 @@ button.secondary:hover { border-color: var(--accent); }
     text-align: center;
     font-size: 18px;
     font-weight: 600;
+}
+.running-total .running-note {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
 }
 
 .grade-display {
@@ -241,8 +262,15 @@ button.secondary:hover { border-color: var(--accent); }
     border-bottom: 1px solid var(--line);
 }
 .breakdown-row:last-child { border-bottom: none; }
+.breakdown-head {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    padding-bottom: 6px;
+}
+.breakdown-head .contrib { color: var(--muted); font-family: inherit; }
 .breakdown-row .label { color: var(--text); }
-.breakdown-row .weight-note { font-size: 11px; color: var(--muted); }
 .breakdown-row .pct { color: var(--muted); text-align: right; }
 .breakdown-row .contrib {
     color: var(--good);
