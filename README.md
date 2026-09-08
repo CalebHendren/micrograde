@@ -2,111 +2,74 @@
 
 **Website:** <https://calebhendren.github.io/micrograde/>
 
-> **Disclaimer:** This tool is informational. The **official final letter grade is calculated by the instructor of record**.
+> **Disclaimer:** This tool is informational. The official final letter grade is calculated by the instructor of record.
 
 ## Privacy and data
 
-- All calculations run **client-side** in your browser.
-- **No grades are uploaded** or sent to any server.
-- Scores are saved to your browser's local storage so they persist between visits.
+Every calculation runs in your browser. No grades are uploaded, and nothing is sent to any server. Scores are kept in your browser's local storage so they are still there when you come back, and the "Reset all" button clears them.
 
-## Purpose
+## How the grade is calculated
 
-- Enter scores for your assessments and view your running course grade.
-- See your current letter grade and what you need to reach higher thresholds.
-- See whether the **replacement policy** benefits your grade.
+Each graded item has two numbers behind it: the points it is out of, and its weight — how much of the final 100% it is worth. You only ever type the points. The calculator divides your score by the points available and multiplies by the weight, so a 44/50 on a Unit 1 Exam worth 17% contributes 14.96 percentage points.
+
+The weights of all graded items in a section add up to 100. Extra credit sits on top of that, so a fully online student who completes all five extra-credit items can finish at 102%.
+
+The calculator shows two numbers, and they answer different questions:
+
+- **Course grade** counts everything you have not entered as a zero. It is where you stand if the semester ended today with no further work.
+- **Current score** averages only the work you have entered. It is how you are doing on what you have actually done, and it ignores everything still ahead of you.
 
 ## Section types
 
-The calculator supports three section formats. On first visit you choose your section type, and the app remembers your choice.
+You pick your section type on first visit, and the app remembers it.
 
-### Separate Lecture & Lab (550 points)
+### On-Ground Lecture / Lab
 
-For sections where lecture and lab are graded independently and combined into a 550-point total.
+Lecture and lab both meet on campus. This covers the separate and the integrated course layouts, since both are graded on the same weights.
 
-**Lecture (400 pts)**
+| Category | Items | Points each | Weight each | Category weight |
+|---|---|---|---|---|
+| Lecture Exams | Unit 1, Unit 2, Unit 3 | 50 | 17% | 70% |
+| | Final Exam | 100 | 19% | |
+| Lab Skills | Transfer, Oil, Gram Stain, Streak, Unknowns | 1 | 0.2% | 1% |
+| Lab Quizzes | Lab Quiz 1–10 | 5 | 0.6% | 6% |
+| Pathogen Project | — | 15 | 3% | 3% |
+| Lab Practical Exam | — | 100 | 20% | 20% |
 
-| Assessment | Max |
+### Hybrid (Online Lecture + On-Ground Lab)
+
+Online lecture with proctored exams, plus the same on-ground lab as above.
+
+| Category | Items | Points each | Weight each | Category weight |
+|---|---|---|---|---|
+| Lecture Exams | Midterm, Final | 100 | 28% | 56% |
+| Lecture Quizzes | Lecture Quiz 1–10 | 20 | 1.4% | 14% |
+| Lab Skills | Transfer, Oil, Gram Stain, Streak, Unknowns | 1 | 0.2% | 1% |
+| Lab Quizzes | Lab Quiz 1–10 | 5 | 0.6% | 6% |
+| Pathogen Project | — | 15 | 3% | 3% |
+| Lab Practical Exam | — | 100 | 20% | 20% |
+
+**Extra credit** (2 points each, 0.4% each, up to +1.2%): Student Intro, Midterm Scheduling, Final Exam Scheduling.
+
+### Fully Online Lecture / Lab
+
+Online lecture and at-home lab kits.
+
+| Category | Items | Points each | Weight each | Category weight |
+|---|---|---|---|---|
+| Lecture Exams | Midterm, Final | 100 | 28% | 56% |
+| Lecture Quizzes | Lecture Quiz 1–10 | 20 | 1.4% | 14% |
+| At-Home Labs | Lab 1–10 | 30 | 3% | 30% |
+
+**Extra credit** (2 points each, 0.4% each, up to +2%): Student Intro, Midterm Scheduling, Final Exam Scheduling, Lab Kit Ordering, Lab Kit Delivery.
+
+### Letter-grade scale
+
+All three section types use the same scale.
+
+| Grade | Course percentage |
 |---|---|
-| Unit 1 Exam | 100 |
-| Unit 2 Exam | 100 |
-| Unit 3 Exam | 100 |
-| Final Exam | 100 |
-
-**Lab (150 pts)**
-
-| Assessment | Max |
-|---|---|
-| Lab Quizzes (10×) | 3 each, 30 total |
-| Skills Tests (5×) | 1 each, 5 total |
-| Midterm Exam | 50 |
-| Final Exam | 50 |
-| Pathogen Project | 15 |
-
-**Letter-grade thresholds**
-
-| Grade | Points |
-|---|---|
-| A | 493+ |
-| B | 438–492 |
-| C | 383–437 |
-| D | 355–382 |
-| F | 0–354 |
-
-### Hybrid: Online Lecture + On-Ground Lab (550 points)
-
-For BIOL 2230 hybrid sections — online lecture (proctored on-campus exams) with an on-ground lab. Based on the published BIOL 2230 hybrid syllabus.
-
-**Online Lecture (400 pts)**
-
-| Assessment | Max |
-|---|---|
-| Online Quizzes (10×) | 10 each, 100 total |
-| Midterm Exam (proctored) | 150 |
-| Final Exam (proctored) | 150 |
-
-**On-Ground Lab (150 pts)**
-
-| Assessment | Max |
-|---|---|
-| Lab Quizzes (10×) | 3 each, 30 total |
-| Skills Tests (5×) | 1 each, 5 total |
-| Practical Midterm Exam | 50 |
-| Practical Final Exam | 50 |
-| Pathogen Project | 15 |
-
-**Letter-grade thresholds** (same as Separate mode)
-
-| Grade | Points |
-|---|---|
-| A | 493+ |
-| B | 438–492 |
-| C | 383–437 |
-| D | 355–382 |
-| F | 0–354 |
-
-The hybrid syllabus does **not** include a replacement policy; the calculator reflects this.
-
-### Integrated Lecture/Lab (weighted percentages)
-
-For sections where lecture and lab are combined into a single weighted grade.
-
-| Assessment | Max Score | Weight |
-|---|---|---|
-| Unit 1 Exam | 100 | 24% |
-| Unit 2 Exam | 75 | 24% |
-| Unit 3 Exam | 75 | 24% |
-| Final Exam | 100 | 24% |
-| Skills Tests (5×) | 1 each | 1% |
-| Pathogen Project | 15 | 3% |
-
-Raw scores are converted to percentages before applying weights.
-
-**Letter-grade scale**
-
-| Grade | Percentage |
-|---|---|
-| A | 90–100% |
+| A | 90% and above |
 | B | 80–89.9% |
 | C | 70–79.9% |
 | D | 65–69.9% |
@@ -114,29 +77,22 @@ Raw scores are converted to percentages before applying weights.
 
 ## Replacement policy
 
-In **Separate** and **Integrated** modes, the **Final Exam score replaces the lowest Unit Exam score** if the replacement benefits the student's grade. In integrated mode, comparison is by percentage since exams have different point maximums. **Hybrid mode does not use a replacement policy** (the hybrid syllabus does not specify one).
+In the On-Ground section type, the Final Exam percentage replaces the lowest Unit Exam percentage when that helps. The replaced exam keeps its own 17% weight; only the percentage changes. Comparison is by percentage rather than raw points, because the Final is out of 100 and the Unit Exams are out of 50.
 
-## Skills tests
+Only exams you have entered are considered, so a Unit Exam you have not taken yet is never quietly "replaced" by a Final you already sat. The Hybrid and Fully Online section types have no replacement policy.
 
-All three modes break skills tests into five individual assessments (0 or 1 each):
+## What the app shows
 
-1. Aseptic Technique
-2. Oil Immersion
-3. Slide Staining
-4. Bacterial Isolation
-5. Biochemical ID
+- Your course grade and letter grade, with everything unentered counted as zero.
+- A weighted breakdown: your percentage in each category and the percentage points it contributes.
+- Your current score across only the assessments you have entered.
+- The average you would need on the remaining weight to reach each letter grade.
+- Which Unit Exam the Final replaced, in the On-Ground section type.
+- Running point subtotals for each category, so you can check them against the LMS gradebook.
 
-## What the app displays
+## Themes
 
-- Which **unit exam** was replaced by the final (if applicable).
-- Subtotals and percentages for each grading category.
-- Current letter grade.
-- Points or percentage needed to reach the next threshold(s).
-- In integrated mode with partial scores entered: the average needed on remaining assessments for each letter grade.
-
-## Themes (light & dark)
-
-The calculator ships with three light themes and three dark themes. A theme picker and a one-click light/dark toggle live in the header. The first-visit theme follows the visitor's operating-system `prefers-color-scheme`; afterwards the choice is remembered per browser.
+Three light themes and three dark ones, with a picker and a light/dark toggle in the header. The first visit follows your operating system's `prefers-color-scheme`; after that the choice is remembered per browser.
 
 | Mode | Theme |
 |---|---|
@@ -147,22 +103,22 @@ The calculator ships with three light themes and three dark themes. A theme pick
 | Dark | Nord |
 | Dark | High Contrast (Dark) — WCAG AAA |
 
-Instructors can change the default theme — or disable the toggle entirely — in `config.js` (`ui.defaultTheme`, `ui.allowThemeToggle`).
+Instructors can change the default theme, or hide the picker entirely, in `config.js` (`ui.defaultTheme`, `ui.allowThemeToggle`).
 
 ## Accessibility
 
 The interface targets WCAG 2.1 AA and supports common university accessibility requirements:
 
-- Semantic landmarks (`header`, `main`, `footer`) and a visible-on-focus **skip-to-content** link.
+- Semantic landmarks (`header`, `main`, `footer`) and a visible-on-focus skip-to-content link.
 - Every input has a programmatically associated `<label>`. Inputs without visible labels use `aria-label`.
 - Live regions (`aria-live="polite"`) announce updated totals, replacement messages, and the letter grade.
-- Keyboard navigation throughout; visible `:focus-visible` outlines that remain visible in all themes.
-- The two **High Contrast** themes meet WCAG AAA (7:1) on body text and respect the OS forced-colors mode (`@media (forced-colors: active)`).
+- Keyboard navigation throughout, with `:focus-visible` outlines that stay visible in all six themes.
+- The two High Contrast themes meet WCAG AAA (7:1) on body text and respect the OS forced-colors mode (`@media (forced-colors: active)`).
 - Color is never the sole indicator of meaning — the letter grade is always present as text.
 - Respects `prefers-reduced-motion` and `prefers-color-scheme`.
-- Number inputs use `inputmode="decimal"` for soft-keyboard support and have `min`/`max` attributes for assistive validation.
+- Number inputs use `inputmode="decimal"` for soft keyboards, with `min` and `max` for assistive validation.
 
-If you discover an accessibility issue, please open an issue on GitHub.
+If you find an accessibility problem, please open an issue on GitHub.
 
 ## Use
 
@@ -174,38 +130,41 @@ If you discover an accessibility issue, please open an issue on GitHub.
 
 ### Customize via `config.js`
 
-All course-specific values — assessments, point maxima, weights, letter-grade thresholds, the replacement policy, mode labels, the GitHub link, and the default theme — live in a single file, **`config.js`** at the repository root. No build step, no JavaScript bundler, no framework. Edit, save, push.
+Everything course-specific lives in `config.js` at the repository root: assessments, point values, weights, letter-grade thresholds, the replacement policy, section labels, the GitHub link, and the default theme. The project is plain HTML, CSS and ES modules with no bundler, so editing the file and pushing is the whole deployment process.
 
-Examples:
+All three section types share one schema. A section has a `lecture` and a `lab`, each holding a list of groups, plus optional `extraCredit`:
 
 ```js
-// Change letter-grade thresholds for the 550-point modes
-window.MICROGRADE_CONFIG.separate.thresholds = { A: 500, B: 445, C: 390, D: 360 };
-
-// Disable a mode entirely
-window.MICROGRADE_CONFIG.modes.integrated.enabled = false;
-
-// Force a specific default theme and hide the picker
-window.MICROGRADE_CONFIG.ui.defaultTheme = 'light-contrast';
-window.MICROGRADE_CONFIG.ui.allowThemeToggle = false;
-
-// Add a "replacement policy" to a points-based mode (Separate / Hybrid)
-window.MICROGRADE_CONFIG.hybrid.lecture.replacement = {
-    sourceId: 'lecFin',
-    replaceableIds: ['lecMid'],
-};
-
-// Rename or re-weight an exam
-window.MICROGRADE_CONFIG.integrated.exams[1].max = 100;
-window.MICROGRADE_CONFIG.integrated.exams[1].weight = 20;
+{
+    id: 'labQuizzes',
+    title: 'Lab Quizzes',
+    layout: 'grid',                      // 'grid' for a numbered run, 'rows' for named items
+    items: series('labq', 'Lab Quiz', 10, 5, 0.6),   // 10 quizzes, 5 points each, 0.6% each
+}
 ```
 
-**Separate** and **Hybrid** share the same points-based schema (`storageKey`, `totalPoints`, `thresholds`, `lecture.components`, `lecture.replacement`, `lab`), so you can copy one and edit it to add additional course variants. The header of `config.js` documents every supported field.
+Common edits:
+
+```js
+// Move the letter-grade cutoffs
+window.MICROGRADE_CONFIG.onground.thresholds = { A: 92, B: 83, C: 74, D: 68 };
+
+// Turn off the replacement policy
+window.MICROGRADE_CONFIG.onground.lecture.replacement = null;
+
+// Hide a section type students are not enrolled in this term
+window.MICROGRADE_CONFIG.modes.online.enabled = false;
+
+// Force a theme and hide the picker
+window.MICROGRADE_CONFIG.ui.defaultTheme = 'light-contrast';
+window.MICROGRADE_CONFIG.ui.allowThemeToggle = false;
+```
+
+The weights in a section must total 100. If they do not, the calculator still runs but logs a warning to the browser console naming the section and the total it found, which is usually enough to spot the typo.
 
 ### Fork and adapt
 
-- **Fork** this repository and edit `config.js` for your syllabus.
-- For deeper changes (new assessment types, custom replacement rules), edit the relevant module in `js/`.
+Fork the repository and edit `config.js` for your syllabus. For changes the config cannot express — a new assessment layout, a different replacement rule — edit `js/weightedCalc.js`.
 
 ### Publish as a GitHub Pages site
 
@@ -214,24 +173,21 @@ window.MICROGRADE_CONFIG.integrated.exams[1].weight = 20;
 3. **Branch**: `master`. **Folder**: `/` (root). Save.
 4. Access at `https://<your-username>.github.io/<repo-name>/`.
 
-No build step is required — the project is plain HTML, CSS, and ES modules, all served directly by GitHub Pages.
-
 ## Project layout
 
 ```
 .
-├── index.html         # Minimal HTML shell — landmarks and mount points
-├── config.js          # Instructor-editable configuration
+├── index.html           # HTML shell — landmarks and mount points
+├── config.js            # Instructor-editable configuration
 ├── css/
-│   ├── base.css       # Resets, layout, typography
-│   ├── components.css # Cards, forms, buttons, pills, theme picker
-│   └── themes.css     # 6 themes via CSS custom properties
+│   ├── base.css         # Resets, layout, typography
+│   ├── components.css   # Cards, forms, buttons, pills, theme picker
+│   └── themes.css       # 6 themes via CSS custom properties
 ├── js/
-│   ├── app.js         # Entry point — boots the app
-│   ├── themes.js      # Theme registry, picker, light/dark toggle
-│   ├── pointsCalc.js  # Generic points calculator (Separate + Hybrid modes)
-│   ├── integrated.js  # Weighted-percent integrated-mode calculator
-│   ├── dom.js         # DOM helpers (element builder, number parsing)
-│   └── storage.js     # localStorage helpers with safe failure
+│   ├── app.js           # Entry point — boots the app
+│   ├── themes.js        # Theme registry, picker, light/dark toggle
+│   ├── weightedCalc.js  # The weighted calculator, shared by all section types
+│   ├── dom.js           # DOM helpers (element builder, number parsing)
+│   └── storage.js       # localStorage helpers with safe failure
 └── README.md
 ```

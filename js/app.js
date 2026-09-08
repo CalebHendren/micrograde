@@ -2,12 +2,14 @@
 
 import { safeGet, safeSet, safeRemove } from './storage.js';
 import { applyTheme, getInitialTheme, buildThemePicker, rememberCurrent, toggleLightDark, modeOfTheme } from './themes.js';
-import { buildPointsCalc } from './pointsCalc.js';
-import { buildIntegrated } from './integrated.js';
+import { buildWeightedCalc } from './weightedCalc.js';
 import { el } from './dom.js';
 
 const MODE_KEY = 'microGradeMode';
-const MODE_ORDER = ['separate', 'hybrid', 'integrated'];
+const MODE_ORDER = ['onground', 'hybrid', 'online'];
+
+const screenId = mode => `${mode}Calc`;
+const footerId = mode => `footer-${mode}`;
 
 function getConfig() {
     const cfg = window.MICROGRADE_CONFIG;
@@ -86,73 +88,46 @@ function installThemeControls(config) {
     host.replaceChildren(label, picker, toggle);
 }
 
-function buildSelector(config, onChoose) {
+function buildSelector(config, enabledModes, onChoose) {
     const screen = document.getElementById('selectorScreen');
-    const buttons = [];
 
-    const buttonSpecs = [
-        { key: 'separate',   id: 'btnSeparate'   },
-        { key: 'hybrid',     id: 'btnHybrid'     },
-        { key: 'integrated', id: 'btnIntegrated' },
-    ];
-
-    for (const { key, id } of buttonSpecs) {
-        const m = config.modes[key];
-        if (!m || !m.enabled) continue;
-        buttons.push(el('button', {
-            id, class: 'secondary', type: 'button',
+    const buttons = enabledModes.map(mode => {
+        const m = config.modes[mode];
+        const btn = el('button', {
+            class: 'secondary', type: 'button',
             'aria-label': `Choose ${m.label}`,
         }, [
             m.label,
             el('span', { class: 'button-sub' }, m.sublabel || ''),
-        ]));
-    }
+        ]);
+        btn.addEventListener('click', () => onChoose(mode));
+        return btn;
+    });
 
     screen.replaceChildren(el('div', { class: 'selector' }, [
         el('h2', {}, 'Which type of section are you in?'),
         el('p', {}, 'Your section type determines how your grade is calculated. If you are unsure, check your course schedule or ask your instructor.'),
         el('div', { class: 'selector-btns' }, buttons),
     ]));
-
-    for (const { key, id } of buttonSpecs) {
-        if (config.modes[key] && config.modes[key].enabled) {
-            const btn = document.getElementById(id);
-            if (btn) btn.addEventListener('click', () => onChoose(key));
-        }
-    }
 }
 
-function showScreen(mode, config) {
-    const screens = {
-        selector:   document.getElementById('selectorScreen'),
-        separate:   document.getElementById('separateCalc'),
-        hybrid:     document.getElementById('hybridCalc'),
-        integrated: document.getElementById('integratedCalc'),
-    };
-    const footers = {
-        separate:   document.getElementById('footerSep'),
-        hybrid:     document.getElementById('footerHyb'),
-        integrated: document.getElementById('footerInt'),
-    };
-
-    screens.selector.classList.toggle('hidden',   mode !== null);
-    screens.separate.classList.toggle('hidden',   mode !== 'separate');
-    screens.hybrid.classList.toggle('hidden',     mode !== 'hybrid');
-    screens.integrated.classList.toggle('hidden', mode !== 'integrated');
+function showScreen(mode) {
+    document.getElementById('selectorScreen').classList.toggle('hidden', mode !== null);
 
     for (const m of MODE_ORDER) {
-        if (footers[m]) footers[m].classList.toggle('hidden', mode !== m);
+        const screen = document.getElementById(screenId(m));
+        if (screen) screen.classList.toggle('hidden', mode !== m);
+        const footer = document.getElementById(footerId(m));
+        if (footer) footer.classList.toggle('hidden', mode !== m);
     }
 
     if (mode) safeSet(MODE_KEY, mode);
 
-    const target = mode === null ? screens.selector : screens[mode];
-    if (target) {
-        const heading = target.querySelector('h1, h2');
-        if (heading) {
-            heading.setAttribute('tabindex', '-1');
-            heading.focus({ preventScroll: false });
-        }
+    const target = document.getElementById(mode === null ? 'selectorScreen' : screenId(mode));
+    const heading = target && target.querySelector('h1, h2');
+    if (heading) {
+        heading.setAttribute('tabindex', '-1');
+        heading.focus({ preventScroll: false });
     }
 }
 
@@ -165,69 +140,49 @@ function init() {
     applyCourseInfo(config);
     installThemeControls(config);
 
-    setText('footerSep', config.separate ? config.separate.footerNote || '' : '');
-    setText('footerHyb', config.hybrid   ? config.hybrid.footerNote   || '' : '');
-    setText('footerInt', config.integrated ? config.integrated.footerNote || '' : '');
+    const enabledModes = MODE_ORDER.filter(
+        m => config.modes[m] && config.modes[m].enabled && config[m]
+    );
 
-    const apps = { separate: null, hybrid: null, integrated: null };
-
-    function ensureSeparate() {
-        if (!apps.separate && config.separate) {
-            apps.separate = buildPointsCalc(
-                document.getElementById('separateCalc'), config.separate,
-                { prefix: 'sep-', modeLabel: config.modes.separate.label, backButtonId: 'backFromSeparate' }
-            );
-            const back = document.getElementById('backFromSeparate');
-            if (back) back.addEventListener('click', () => {
-                safeRemove(MODE_KEY);
-                showScreen(null, config);
-            });
-        }
-        return apps.separate;
+    for (const mode of MODE_ORDER) {
+        setText(footerId(mode), config[mode] ? config[mode].footerNote || '' : '');
     }
 
-    function ensureHybrid() {
-        if (!apps.hybrid && config.hybrid) {
-            apps.hybrid = buildPointsCalc(
-                document.getElementById('hybridCalc'), config.hybrid,
-                { prefix: 'hyb-', modeLabel: config.modes.hybrid.label, backButtonId: 'backFromHybrid' }
-            );
-            const back = document.getElementById('backFromHybrid');
-            if (back) back.addEventListener('click', () => {
-                safeRemove(MODE_KEY);
-                showScreen(null, config);
-            });
-        }
-        return apps.hybrid;
-    }
+    // Calculators are built on first visit to a section type, not up front, so
+    // a student only pays for the one they use.
+    const built = {};
 
-    function ensureIntegrated() {
-        if (!apps.integrated && config.integrated) {
-            apps.integrated = buildIntegrated(document.getElementById('integratedCalc'), config);
-            const back = document.getElementById('backFromIntegrated');
-            if (back) back.addEventListener('click', () => {
+    function ensureCalc(mode) {
+        if (built[mode]) return built[mode];
+        const backButtonId = `backFrom-${mode}`;
+        built[mode] = buildWeightedCalc(
+            document.getElementById(screenId(mode)),
+            config[mode],
+            { prefix: `${mode}-`, modeLabel: config.modes[mode].label, backButtonId }
+        );
+        const back = document.getElementById(backButtonId);
+        if (back) {
+            back.addEventListener('click', () => {
                 safeRemove(MODE_KEY);
-                showScreen(null, config);
+                showScreen(null);
             });
         }
-        return apps.integrated;
+        return built[mode];
     }
 
     function chooseMode(mode) {
-        if (mode === 'separate'   && config.modes.separate.enabled)   ensureSeparate();
-        else if (mode === 'hybrid'     && config.modes.hybrid.enabled)     ensureHybrid();
-        else if (mode === 'integrated' && config.modes.integrated.enabled) ensureIntegrated();
-        showScreen(mode, config);
+        if (!enabledModes.includes(mode)) return;
+        ensureCalc(mode);
+        showScreen(mode);
     }
 
-    buildSelector(config, chooseMode);
-
-    const enabledModes = MODE_ORDER.filter(m => config.modes[m] && config.modes[m].enabled);
     if (enabledModes.length === 0) {
         document.getElementById('selectorScreen').textContent =
             'No calculator modes are enabled. Edit config.js to enable at least one.';
         return;
     }
+
+    buildSelector(config, enabledModes, chooseMode);
 
     const saved = safeGet(MODE_KEY);
     if (enabledModes.length === 1) {
@@ -235,7 +190,7 @@ function init() {
     } else if (saved && enabledModes.includes(saved)) {
         chooseMode(saved);
     } else {
-        showScreen(null, config);
+        showScreen(null);
     }
 }
 
