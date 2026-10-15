@@ -1,5 +1,5 @@
 /* =============================================================================
- * MicroGrade — Instructor Configuration
+ * MicroGrade: Instructor Configuration
  * -----------------------------------------------------------------------------
  * Edit this file to adapt the grade calculator to your course. No build step
  * is required; just save and reload the page (or push to GitHub Pages).
@@ -69,7 +69,7 @@
     function onGroundLab() {
         return {
             title: 'Lab',
-            hint: 'Skills tests are pass/fail — enter 1 for pass, 0 for fail.',
+            hint: 'Skills tests are pass/fail. Enter 1 for pass, 0 for fail.',
             groups: [
                 {
                     id: 'labSkills',

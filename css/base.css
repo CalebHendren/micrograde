@@ -14,7 +14,7 @@ body {
         "Noto Sans", Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
-/* Accessible skip link — visible only on focus. */
+/* Accessible skip link, visible only on focus. */
 .skip-link {
     position: absolute;
     top: -100px;

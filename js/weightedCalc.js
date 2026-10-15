@@ -123,7 +123,7 @@ export function buildWeightedCalc(root, cfg, opts) {
 
     const replacementBox = replacement ? el('div', { class: 'box' }, [
         'Replacement: ',
-        el('span', { class: 'mono', id: id('replaceMsg'), 'aria-live': 'polite' }, '—'),
+        el('span', { class: 'mono', id: id('replaceMsg'), 'aria-live': 'polite' }, '-'),
     ]) : null;
 
     const lectureCard = buildCard(
@@ -167,10 +167,10 @@ export function buildWeightedCalc(root, cfg, opts) {
         el('div', { class: 'grade-pair' }, [
             el('div', { class: 'grade-display', role: 'status', 'aria-live': 'polite' }, [
                 el('div', { class: 'detail' }, 'Current score, counting only work you have entered'),
-                el('div', { class: 'big', id: id('currentPercent') }, '—'),
+                el('div', { class: 'big', id: id('currentPercent') }, '-'),
                 el('div', { class: 'detail' }, [
                     'Letter grade: ',
-                    el('strong', {}, el('span', { id: id('currentLetter') }, '—')),
+                    el('strong', {}, el('span', { id: id('currentLetter') }, '-')),
                 ]),
                 el('div', { class: 'detail', id: id('currentWeight') }, 'Enter at least one score to see your current average.'),
             ]),
@@ -184,7 +184,7 @@ export function buildWeightedCalc(root, cfg, opts) {
             ]),
         ]),
         el('p', { id: id('currentScoreNote'), class: 'hint', style: 'margin-top:10px' },
-            'The current score is your average across the work you have entered so far — not your final grade. It leaves out assessments you have not entered, while the course grade counts them as zero. Your final letter grade depends on every remaining assessment.'
+            'The current score is your average across the work you have entered so far, not your final grade. It leaves out assessments you have not entered, while the course grade counts them as zero. Your final letter grade depends on every remaining assessment.'
         ),
         el('div', { class: 'box' }, [
             el('div', { style: 'margin-bottom:8px' }, el('strong', {}, 'Weighted breakdown')),
@@ -201,7 +201,7 @@ export function buildWeightedCalc(root, cfg, opts) {
                 id: id('targets'), class: 'mono',
                 style: 'font-size:13px; white-space:pre-line',
                 'aria-live': 'polite',
-            }, '—'),
+            }, '-'),
         ]),
         el('div', { class: 'box', style: 'font-size:13px; color:var(--muted)' }, [
             el('strong', { style: 'color:var(--text)' }, 'Grade scale'),
@@ -387,7 +387,7 @@ export function buildWeightedCalc(root, cfg, opts) {
                     g.title + (replacedHere ? ' (replacement applied)' : ''), ' ',
                     el('span', { class: 'weight-note' }, `${weight}%`),
                 ]),
-                el('span', { class: 'pct' }, anyEntered ? pct.toFixed(1) + '%' : '—'),
+                el('span', { class: 'pct' }, anyEntered ? pct.toFixed(1) + '%' : '-'),
                 el('span', { class: 'contrib' }, st.contrib.toFixed(2) + '%'),
             ]);
         });
@@ -476,8 +476,8 @@ export function buildWeightedCalc(root, cfg, opts) {
             currentWeight.textContent =
                 `Across ${r2(enteredWeight)}% of the course weight. At this rate: ${curLetter}`;
         } else {
-            currentPercent.textContent = '—';
-            currentLetter.textContent = '—';
+            currentPercent.textContent = '-';
+            currentLetter.textContent = '-';
             currentLetter.className = '';
             currentWeight.textContent = 'Enter at least one score to see your current average.';
         }
