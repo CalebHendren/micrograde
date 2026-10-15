@@ -164,14 +164,28 @@ export function buildWeightedCalc(root, cfg, opts) {
         class: 'card full', 'aria-labelledby': `${prefix}overallTitle`,
     }, [
         el('h2', { id: `${prefix}overallTitle` }, 'Overall'),
-        el('div', { class: 'grade-display', role: 'status', 'aria-live': 'polite' }, [
-            el('div', { class: 'detail' }, 'Course grade, counting work you have not entered as zero'),
-            el('div', { class: 'big', id: id('coursePercent') }, '0.00%'),
-            el('div', { class: 'detail' }, [
-                'Letter grade: ',
-                el('strong', {}, el('span', { id: id('letter'), class: 'bad' }, 'F')),
+        el('div', { class: 'grade-pair' }, [
+            el('div', { class: 'grade-display', role: 'status', 'aria-live': 'polite' }, [
+                el('div', { class: 'detail' }, 'Current score, counting only work you have entered'),
+                el('div', { class: 'big', id: id('currentPercent') }, '—'),
+                el('div', { class: 'detail' }, [
+                    'Letter grade: ',
+                    el('strong', {}, el('span', { id: id('currentLetter') }, '—')),
+                ]),
+                el('div', { class: 'detail', id: id('currentWeight') }, 'Enter at least one score to see your current average.'),
+            ]),
+            el('div', { class: 'grade-display', role: 'status', 'aria-live': 'polite' }, [
+                el('div', { class: 'detail' }, 'Course grade, counting work you have not entered as zero'),
+                el('div', { class: 'big', id: id('coursePercent') }, '0.00%'),
+                el('div', { class: 'detail' }, [
+                    'Letter grade: ',
+                    el('strong', {}, el('span', { id: id('letter'), class: 'bad' }, 'F')),
+                ]),
             ]),
         ]),
+        el('p', { id: id('currentScoreNote'), class: 'hint', style: 'margin-top:10px' },
+            'The current score is your average across the work you have entered so far — not your final grade. It leaves out assessments you have not entered, while the course grade counts them as zero. Your final letter grade depends on every remaining assessment.'
+        ),
         el('div', { class: 'box' }, [
             el('div', { style: 'margin-bottom:8px' }, el('strong', {}, 'Weighted breakdown')),
             el('div', { class: 'breakdown-row breakdown-head' }, [
@@ -188,17 +202,6 @@ export function buildWeightedCalc(root, cfg, opts) {
                 style: 'font-size:13px; white-space:pre-line',
                 'aria-live': 'polite',
             }, '—'),
-        ]),
-        el('div', { id: id('currentScoreBox'), class: 'box' }, [
-            el('div', { style: 'margin-bottom:6px' }, el('strong', {}, 'Current score (entered assessments only)')),
-            el('div', {
-                id: id('currentScore'), class: 'mono',
-                style: 'font-size:13px',
-                'aria-live': 'polite',
-            }, '—'),
-            el('p', { class: 'hint', style: 'margin-top:6px' },
-                'This is your average across the work you have entered so far — not your final grade. It leaves out assessments you have not entered, while the course grade above counts them as zero. Your final letter grade depends on every remaining assessment.'
-            ),
         ]),
         el('div', { class: 'box', style: 'font-size:13px; color:var(--muted)' }, [
             el('strong', { style: 'color:var(--text)' }, 'Grade scale'),
@@ -413,17 +416,26 @@ export function buildWeightedCalc(root, cfg, opts) {
         document.getElementById(id('targets')).textContent = targetText;
 
         // Current score across entered work only
-        const currentNode = document.getElementById(id('currentScore'));
+        const currentPercent = document.getElementById(id('currentPercent'));
+        const currentLetter = document.getElementById(id('currentLetter'));
+        const currentWeight = document.getElementById(id('currentWeight'));
         if (enteredWeight > 0) {
             const curPct = (enteredContrib / enteredWeight) * 100;
-            currentNode.textContent =
-                `${curPct.toFixed(2)}% across ${r2(enteredWeight)}% of the course weight — at this rate: ${letterFor(curPct)}`;
+            const curLetter = letterFor(curPct);
+            currentPercent.textContent = curPct.toFixed(2) + '%';
+            currentLetter.textContent = curLetter;
+            currentLetter.className = classFor(curLetter);
+            currentWeight.textContent =
+                `Across ${r2(enteredWeight)}% of the course weight — at this rate: ${curLetter}`;
         } else {
-            currentNode.textContent = 'Enter at least one score to see your current average.';
+            currentPercent.textContent = '—';
+            currentLetter.textContent = '—';
+            currentLetter.className = '';
+            currentWeight.textContent = 'Enter at least one score to see your current average.';
         }
 
         document.getElementById(id('targetsBox')).classList.toggle('hidden', allEntered);
-        document.getElementById(id('currentScoreBox')).classList.toggle('hidden', allEntered);
+        document.getElementById(id('currentScoreNote')).classList.toggle('hidden', allEntered);
 
         save();
     }
