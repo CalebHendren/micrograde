@@ -18,23 +18,34 @@
 
 /* ------------------------------ LIGHT THEMES ------------------------------ */
 
+/* Chattanooga State palette: navy #10305F, royal blue #0B57BE, orange #FE5000.
+ * Orange fails AA as small text, so text uses the darker #C63F00. The header
+ * variables are optional; themes that leave them unset keep the default
+ * light header from base.css. */
 [data-theme="light-default"] {
-    --bg:          #f7f8fb;
-    --bg-soft:     #ffffff;
+    --bg:          #f4f6f9;
+    --bg-soft:     #edf1f6;
     --card:        #ffffff;
-    --line:        #d6dae3;
-    --shadow:      rgba(15, 23, 42, 0.08);
-    --text:        #11151c;
-    --muted:       #4a5468;
-    --accent:      #2a4ed1;
+    --line:        #c7d0dc;
+    --shadow:      rgba(16, 48, 95, 0.10);
+    --text:        #14181f;
+    --muted:       #4a5563;
+    --accent:      #0b57be;
     --accent-text: #ffffff;
-    --link:        #1f3fb0;
+    --link:        #0b57be;
     --input-bg:    #ffffff;
-    --focus-ring:  rgba(42, 78, 209, 0.35);
+    --focus-ring:  rgba(11, 87, 190, 0.35);
     --ok:          #117a3d;
-    --good:        #1d4ed8;
-    --warn:        #a35a00;
-    --bad:         #b3261e;
+    --good:        #0b57be;
+    --warn:        #c63f00;
+    --bad:         #a4262c;
+
+    --header-bg:     #10305f;
+    --header-border: 4px solid #fe5000;
+    --header-title:  #ffffff;
+    --header-sub:    #d6e0f0;
+    --header-label:  #ffffff;
+    --header-btn-border: rgba(255, 255, 255, 0.6);
 }
 
 [data-theme="sepia"] {
