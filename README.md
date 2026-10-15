@@ -10,7 +10,7 @@ Every calculation runs in your browser. No grades are uploaded, and nothing is s
 
 ## How the grade is calculated
 
-Each graded item has two numbers behind it: the points it is out of, and its weight — how much of the final 100% it is worth. You only ever type the points. The calculator divides your score by the points available and multiplies by the weight, so a 44/50 on a Unit 1 Exam worth 17% contributes 14.96 percentage points.
+Each graded item has two numbers behind it: the points it is out of, and its weight, or how much of the final 100% it is worth. You only ever type the points. The calculator divides your score by the points available and multiplies by the weight, so a 44/50 on a Unit 1 Exam worth 17% contributes 14.96 percentage points.
 
 The weights of all graded items in a section add up to 100. Extra credit sits on top of that, so a fully online student who completes all five extra-credit items can finish at 102%.
 
@@ -33,8 +33,8 @@ Lecture and lab both meet on campus. This covers the separate and the integrated
 | | Final Exam | 100 | 19% | |
 | Lab Skills | Transfer, Oil, Gram Stain, Streak, Unknowns | 1 | 0.2% | 1% |
 | Lab Quizzes | Lab Quiz 1–10 | 5 | 0.6% | 6% |
-| Pathogen Project | — | 15 | 3% | 3% |
-| Lab Practical Exam | — | 100 | 20% | 20% |
+| Pathogen Project | - | 15 | 3% | 3% |
+| Lab Practical Exam | - | 100 | 20% | 20% |
 
 ### Hybrid (Online Lecture + On-Ground Lab)
 
@@ -46,8 +46,8 @@ Online lecture with proctored exams, plus the same on-ground lab as above.
 | Lecture Quizzes | Lecture Quiz 1–10 | 20 | 1.4% | 14% |
 | Lab Skills | Transfer, Oil, Gram Stain, Streak, Unknowns | 1 | 0.2% | 1% |
 | Lab Quizzes | Lab Quiz 1–10 | 5 | 0.6% | 6% |
-| Pathogen Project | — | 15 | 3% | 3% |
-| Lab Practical Exam | — | 100 | 20% | 20% |
+| Pathogen Project | - | 15 | 3% | 3% |
+| Lab Practical Exam | - | 100 | 20% | 20% |
 
 **Extra credit** (2 points each, 0.4% each, up to +1.2%): Student Intro, Midterm Scheduling, Final Exam Scheduling.
 
@@ -98,10 +98,10 @@ Three light themes and three dark ones, with a picker and a light/dark toggle in
 |---|---|
 | Light | Light (default) |
 | Light | Sepia |
-| Light | High Contrast (Light) — WCAG AAA |
+| Light | High Contrast (Light), WCAG AAA |
 | Dark | Dracula |
 | Dark | Nord |
-| Dark | High Contrast (Dark) — WCAG AAA |
+| Dark | High Contrast (Dark), WCAG AAA |
 
 Instructors can change the default theme, or hide the picker entirely, in `config.js` (`ui.defaultTheme`, `ui.allowThemeToggle`).
 
@@ -114,7 +114,7 @@ The interface targets WCAG 2.1 AA and supports common university accessibility r
 - Live regions (`aria-live="polite"`) announce updated totals, replacement messages, and the letter grade.
 - Keyboard navigation throughout, with `:focus-visible` outlines that stay visible in all six themes.
 - The two High Contrast themes meet WCAG AAA (7:1) on body text and respect the OS forced-colors mode (`@media (forced-colors: active)`).
-- Color is never the sole indicator of meaning — the letter grade is always present as text.
+- Color is never the sole indicator of meaning: the letter grade is always present as text.
 - Respects `prefers-reduced-motion` and `prefers-color-scheme`.
 - Number inputs use `inputmode="decimal"` for soft keyboards, with `min` and `max` for assistive validation.
 
@@ -164,7 +164,7 @@ The weights in a section must total 100. If they do not, the calculator still ru
 
 ### Fork and adapt
 
-Fork the repository and edit `config.js` for your syllabus. For changes the config cannot express — a new assessment layout, a different replacement rule — edit `js/weightedCalc.js`.
+Fork the repository and edit `config.js` for your syllabus. For changes the config cannot express (a new assessment layout, a different replacement rule), edit `js/weightedCalc.js`.
 
 ### Publish as a GitHub Pages site
 
@@ -177,14 +177,14 @@ Fork the repository and edit `config.js` for your syllabus. For changes the conf
 
 ```
 .
-├── index.html           # HTML shell — landmarks and mount points
+├── index.html           # HTML shell: landmarks and mount points
 ├── config.js            # Instructor-editable configuration
 ├── css/
 │   ├── base.css         # Resets, layout, typography
 │   ├── components.css   # Cards, forms, buttons, pills, theme picker
 │   └── themes.css       # 6 themes via CSS custom properties
 ├── js/
-│   ├── app.js           # Entry point — boots the app
+│   ├── app.js           # Entry point: boots the app
 │   ├── themes.js        # Theme registry, picker, light/dark toggle
 │   ├── weightedCalc.js  # The weighted calculator, shared by all section types
 │   ├── dom.js           # DOM helpers (element builder, number parsing)

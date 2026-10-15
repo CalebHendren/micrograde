@@ -123,7 +123,7 @@ export function buildWeightedCalc(root, cfg, opts) {
 
     const replacementBox = replacement ? el('div', { class: 'box' }, [
         'Replacement: ',
-        el('span', { class: 'mono', id: id('replaceMsg'), 'aria-live': 'polite' }, '—'),
+        el('span', { class: 'mono', id: id('replaceMsg'), 'aria-live': 'polite' }, '-'),
     ]) : null;
 
     const lectureCard = buildCard(
@@ -167,10 +167,10 @@ export function buildWeightedCalc(root, cfg, opts) {
         el('div', { class: 'grade-pair' }, [
             el('div', { class: 'grade-display', role: 'status', 'aria-live': 'polite' }, [
                 el('div', { class: 'detail' }, 'Current score, counting only work you have entered'),
-                el('div', { class: 'big', id: id('currentPercent') }, '—'),
+                el('div', { class: 'big', id: id('currentPercent') }, '-'),
                 el('div', { class: 'detail' }, [
                     'Letter grade: ',
-                    el('strong', {}, el('span', { id: id('currentLetter') }, '—')),
+                    el('strong', {}, el('span', { id: id('currentLetter') }, '-')),
                 ]),
                 el('div', { class: 'detail', id: id('currentWeight') }, 'Enter at least one score to see your current average.'),
             ]),
@@ -184,7 +184,7 @@ export function buildWeightedCalc(root, cfg, opts) {
             ]),
         ]),
         el('p', { id: id('currentScoreNote'), class: 'hint', style: 'margin-top:10px' },
-            'The current score is your average across the work you have entered so far — not your final grade. It leaves out assessments you have not entered, while the course grade counts them as zero. Your final letter grade depends on every remaining assessment.'
+            'The current score is your average across the work you have entered so far, not your final grade. It leaves out assessments you have not entered, while the course grade counts them as zero. Your final letter grade depends on every remaining assessment.'
         ),
         el('div', { class: 'box' }, [
             el('div', { style: 'margin-bottom:8px' }, el('strong', {}, 'Weighted breakdown')),
@@ -201,7 +201,7 @@ export function buildWeightedCalc(root, cfg, opts) {
                 id: id('targets'), class: 'mono',
                 style: 'font-size:13px; white-space:pre-line',
                 'aria-live': 'polite',
-            }, '—'),
+            }, '-'),
         ]),
         el('div', { class: 'box', style: 'font-size:13px; color:var(--muted)' }, [
             el('strong', { style: 'color:var(--text)' }, 'Grade scale'),
@@ -263,6 +263,32 @@ export function buildWeightedCalc(root, cfg, opts) {
         return state;
     }
 
+    // Which exam would the final replace? Takes a lookup from item id to a
+    // percentage (null when that item should not count) and returns the
+    // source percentage plus the lowest replaceable exam, or null when the
+    // policy has nothing to work with. Shared by the live grade and the
+    // projections so both apply the policy identically.
+    function pickReplacement(pctOf) {
+        if (!replacement) return null;
+        const sourcePct = pctOf(replacement.sourceId);
+        if (sourcePct == null) return null;
+
+        let lowest = null;
+        for (const rid of replacement.replaceableIds) {
+            const pct = pctOf(rid);
+            if (pct == null) continue;
+            if (!lowest || pct < lowest.pct) lowest = { rid, pct };
+        }
+        if (!lowest) return null;
+
+        return {
+            sourcePct,
+            lowestId: lowest.rid,
+            lowestPct: lowest.pct,
+            applies: sourcePct > lowest.pct,
+        };
+    }
+
     // The final exam's percentage stands in for the weakest unit exam when
     // that helps. The replaced item keeps its own weight; only the percentage
     // changes. Unentered exams are left out so an untaken exam is not
@@ -270,30 +296,25 @@ export function buildWeightedCalc(root, cfg, opts) {
     function applyReplacement(state, effective) {
         if (!replacement) return new Set();
 
-        const source = state.get(replacement.sourceId);
-        const candidates = replacement.replaceableIds
-            .map(rid => ({ rid, entry: state.get(rid) }))
-            .filter(c => c.entry && c.entry.entered);
-
         const node = document.getElementById(id('replaceMsg'));
         const srcLabel = labelOf(replacement.sourceId);
         const pctText = p => (p * 100).toFixed(1) + '%';
 
-        if (!source || !source.entered || candidates.length === 0) {
+        const pick = pickReplacement(rid => {
+            const entry = state.get(rid);
+            return entry && entry.entered ? entry.pct : null;
+        });
+
+        if (!pick) {
             node.textContent = `Enter your ${srcLabel} and at least one unit exam to see whether this applies.`;
             return new Set();
         }
 
-        let lowest = candidates[0];
-        for (const c of candidates) {
-            if (c.entry.pct < lowest.entry.pct) lowest = c;
-        }
-
-        if (source.pct > lowest.entry.pct) {
-            effective.set(lowest.rid, source.pct);
+        if (pick.applies) {
+            effective.set(pick.lowestId, pick.sourcePct);
             node.textContent =
-                `${srcLabel} (${pctText(source.pct)}) replaces ${labelOf(lowest.rid)} (${pctText(lowest.entry.pct)}).`;
-            return new Set([lowest.rid]);
+                `${srcLabel} (${pctText(pick.sourcePct)}) replaces ${labelOf(pick.lowestId)} (${pctText(pick.lowestPct)}).`;
+            return new Set([pick.lowestId]);
         }
 
         node.textContent = `No replacement. Your ${srcLabel} is not higher than your lowest unit exam.`;
@@ -366,7 +387,7 @@ export function buildWeightedCalc(root, cfg, opts) {
                     g.title + (replacedHere ? ' (replacement applied)' : ''), ' ',
                     el('span', { class: 'weight-note' }, `${weight}%`),
                 ]),
-                el('span', { class: 'pct' }, anyEntered ? pct.toFixed(1) + '%' : '—'),
+                el('span', { class: 'pct' }, anyEntered ? pct.toFixed(1) + '%' : '-'),
                 el('span', { class: 'contrib' }, st.contrib.toFixed(2) + '%'),
             ]);
         });
@@ -383,9 +404,33 @@ export function buildWeightedCalc(root, cfg, opts) {
         document.getElementById(id('breakdown')).replaceChildren(...rows);
 
         // Projections
-        const secured = enteredContrib + ecEarned;
         const remaining = Math.max(0, totalWeight - enteredWeight);
         let targetText;
+
+        // Course percentage if every assessment still to come earns the same
+        // fraction x. The replacement policy runs on the simulated scores, so
+        // a strong final that will replace a weak exam counts toward the goal.
+        const projectCourse = x => {
+            const pcts = new Map(gradedItems.map(it => {
+                const entry = state.get(it.id);
+                return [it.id, entry.entered ? entry.pct : x];
+            }));
+            const pick = pickReplacement(rid => pcts.get(rid) ?? null);
+            if (pick && pick.applies) pcts.set(pick.lowestId, pick.sourcePct);
+            return sum(gradedItems, it => pcts.get(it.id) * it.weight) + ecEarned;
+        };
+
+        // Smallest x (0 to 1) that reaches the target; projectCourse never
+        // decreases as x grows, so bisection finds it.
+        const neededFraction = target => {
+            let lo = 0;
+            let hi = 1;
+            for (let n = 0; n < 40; n++) {
+                const mid = (lo + hi) / 2;
+                if (projectCourse(mid) >= target) hi = mid; else lo = mid;
+            }
+            return hi;
+        };
 
         if (allEntered) {
             const gaps = ['A', 'B', 'C', 'D']
@@ -395,19 +440,22 @@ export function buildWeightedCalc(root, cfg, opts) {
                 ? `Every assessment is entered. You have an ${letter === 'A' ? 'A' : letter}.`
                 : `Every assessment is entered. Percentage points short:\n${gaps.join('\n')}`;
         } else if (enteredWeight > 0) {
+            const EPS = 1e-9;
+            const best = projectCourse(1);
             const lines = [
                 `Entered ${r2(enteredWeight)}% of the course weight. ${r2(remaining)}% still to come.`,
             ];
             for (const g of ['A', 'B', 'C', 'D']) {
-                const gap = T[g] - secured;
-                if (gap <= 0) {
+                if (projectCourse(0) >= T[g] - EPS) {
                     lines.push(`${g}: already locked in.`);
+                } else if (best < T[g] - EPS) {
+                    lines.push(`${g}: out of reach. Even 100% on the remaining work only reaches ${best.toFixed(1)}%.`);
                 } else {
-                    const needed = (gap / remaining) * 100;
-                    lines.push(needed > 100
-                        ? `${g}: out of reach — would need ${needed.toFixed(1)}% of the remaining work.`
-                        : `${g}: average ${needed.toFixed(1)}% on the remaining ${r2(remaining)}%.`);
+                    lines.push(`${g}: average ${(neededFraction(T[g]) * 100).toFixed(1)}% on the remaining ${r2(remaining)}%.`);
                 }
+            }
+            if (replacement && !state.get(replacement.sourceId).entered) {
+                lines.push(`These figures count your ${labelOf(replacement.sourceId)} replacing your lowest unit exam when that helps.`);
             }
             targetText = lines.join('\n');
         } else {
@@ -426,10 +474,10 @@ export function buildWeightedCalc(root, cfg, opts) {
             currentLetter.textContent = curLetter;
             currentLetter.className = classFor(curLetter);
             currentWeight.textContent =
-                `Across ${r2(enteredWeight)}% of the course weight — at this rate: ${curLetter}`;
+                `Across ${r2(enteredWeight)}% of the course weight. At this rate: ${curLetter}`;
         } else {
-            currentPercent.textContent = '—';
-            currentLetter.textContent = '—';
+            currentPercent.textContent = '-';
+            currentLetter.textContent = '-';
             currentLetter.className = '';
             currentWeight.textContent = 'Enter at least one score to see your current average.';
         }

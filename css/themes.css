@@ -134,7 +134,7 @@
     --bad:         #ff7a7a;
 }
 
-/* Forced-colors mode (Windows High Contrast) — let the OS decide. */
+/* Forced-colors mode (Windows High Contrast). Let the OS decide. */
 @media (forced-colors: active) {
     :root {
         --line: CanvasText;
