@@ -295,7 +295,7 @@ button.secondary:hover { border-color: var(--accent); }
     gap: 8px;
     flex: 0 0 auto;
 }
-.theme-controls label { font-size: 13px; color: var(--muted); }
+.theme-controls label { font-size: 13px; color: var(--header-label, var(--muted)); }
 .theme-controls select {
     padding: 6px 8px;
     border-radius: 8px;
@@ -312,8 +312,8 @@ button.secondary:hover { border-color: var(--accent); }
 }
 .theme-toggle {
     background: transparent;
-    color: var(--text);
-    border: 1px solid var(--line);
+    color: var(--header-label, var(--text));
+    border: 1px solid var(--header-btn-border, var(--line));
     padding: 6px 10px;
     border-radius: 8px;
     font-size: 13px;

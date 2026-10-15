@@ -31,8 +31,8 @@ body {
 
 header[role="banner"] {
     padding: 16px;
-    border-bottom: 1px solid var(--line);
-    background: linear-gradient(180deg, var(--bg-soft), var(--bg) 70%);
+    border-bottom: var(--header-border, 1px solid var(--line));
+    background: var(--header-bg, linear-gradient(180deg, var(--bg-soft), var(--bg) 70%));
 }
 
 .header-inner {
@@ -49,10 +49,10 @@ h1 {
     margin: 0 0 6px;
     font-size: clamp(20px, 3.2vw, 28px);
     font-weight: 800;
-    color: var(--accent);
+    color: var(--header-title, var(--accent));
 }
 
-.sub { color: var(--muted); font-size: 14px; }
+.sub { color: var(--header-sub, var(--muted)); font-size: 14px; }
 
 .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
 
