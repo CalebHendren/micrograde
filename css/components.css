@@ -241,6 +241,14 @@ button.secondary:hover { border-color: var(--accent); }
     color: var(--muted);
 }
 
+.grade-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+.grade-pair .grade-display { margin-top: 0; }
+
 .grade-display {
     margin-top: 12px;
     padding: 14px;
